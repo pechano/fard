@@ -1,10 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
-	"reflect"
 	"time"
 
 	"github.com/faiface/beep"
@@ -14,26 +14,36 @@ import (
 
 
 type meme struct{
-file string
-img string
-title string
+	File string `json:"file"`
+Img string `json:"img"`
+Title string `json:"title"`
 	buffer *beep.Buffer
 }
 
 
 
+
 func main() {
+
+	//prepare memes from json:
+
+
 	var fard meme
-	fard.file, fard.img, fard.title = "fard.mp3","poop.jpg","reverb fard"
+	fard.File, fard.Img, fard.Title = "fard.mp3","poop.jpg","reverb fard"
 
 	var fart meme
-	fart.file, fart.img, fart.title = "fart.mp3","poop.jpg","wet fart"
-
+	fart.File, fart.Img, fart.Title = "fart.mp3","poop.jpg","wet fart"
+	b, err := json.Marshal(fard)
+	fmt.Println(fard)
+	fmt.Println(string(b[:]))
+	var fart2 meme
+	err = json.Unmarshal(b,&fart2)
+fmt.Println(fart2)
 var memes []meme
 	memes = append(memes,fard)
 	memes = append(memes,fart)
 
-	f, err := os.Open(fard.file)
+	f, err := os.Open(fard.File)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,7 +53,7 @@ var memes []meme
 		log.Fatal(err)
 	}
 	fardrate := format.SampleRate
-	f2, err := os.Open(fart.file)
+	f2, err := os.Open(fart.File)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,17 +71,20 @@ memes[0].buffer.Append(streamer)
 memes[1].buffer.Append(resampled)
 	streamer.Close()
 	streamer2.Close()
+
+
+	//This part reads the meme collection and presents them in menu form as a numbered list.
+	//The user inputs a number with ENTER and the corresponding sound will play.
 	var choice int
 for {
 		fmt.Printf("Pick an option and press [ENTER] to <<<FARD>>>! \n")
 		for i:=0;i<len(memes);i++{
-		fmt.Printf("%d: %s \n",i+1,memes[i].title)
+		fmt.Printf("%d: %s \n",i+1,memes[i].Title)
 	}
 		fmt.Scan(&choice)
 		choice = choice -1
 		if choice >= len(memes){fmt.Println("Please pick a valid option") } else if
-		choice < 0 {fmt.Println("Please pick a valid option") } else if
-				reflect.TypeOf(choice) !=reflect.TypeOf(1) {fmt.Println("Please pick a valid option")} else 
+		choice < 0 {fmt.Println("Please pick a valid option") } else 
 		{
 				fart := memes[choice].buffer.Streamer(0,memes[choice].buffer.Len() )
 				speaker.Play(fart)
