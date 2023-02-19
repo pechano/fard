@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+}
+
+.container img {
+  width: 100%;
+  height: auto;
+}
+
+.container .btn {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  background-color: #555;
+  color: white;
+  font-size: 16px;
+  padding: 12px 24px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.container .btn:hover {
+  background-color: black;
+}
+.button {
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+.button1 {
+  background-color: white;
+  color: black;
+  border: 2px solid #4CAF50;
+}
+
+.button1:hover {  
+  background-color: #4CAF50;
+  color: white;
+}
+
+.button2 {
+  background-color: white;
+  color: black;
+  border: 2px solid #008CBA;
+}
+
+.button2:hover {
+  background-color: #008CBA;
+  color: white;
+}
+  .imgbutton
+  {
+    width:100px;
+    height:100px;
+  }
+</style>
+</head>
+<body>
+
+
+<script>
+  function fardFunc(id) {
+    var url = "http://localhost:10000/fard/"
+var xhr = new XMLHttpRequest();
+xhr.open("POST", url+id, true);
+xhr.send();
+}
+</script>
+
+
+{{range .}}
+<div class="container">
+  <img src="/data/img/{{.Img}}" alt="poop" style="width:100%">
+    <button class="btn" onclick="fardFunc({{.ID}})">{{.Title}}</button>
+</div>
+    {{end}}
+
+
+    <h1>Upload new meme</h1>
+    <form
+      enctype="multipart/form-data"
+      action="http://localhost:10000/upload"
+      method="post"
+    >
+      <input type="file" name="myFile" />
+      <input type="submit" value="upload" />
+    </form>
+</body>
+</html>
