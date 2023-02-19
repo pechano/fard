@@ -2,7 +2,10 @@ module fard
 
 go 1.19
 
-require github.com/faiface/beep v1.1.0
+require (
+	github.com/faiface/beep v1.1.0
+	github.com/gorilla/mux v1.8.0
+)
 
 require (
 	github.com/hajimehoshi/go-mp3 v0.3.0 // indirect
