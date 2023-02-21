@@ -31,9 +31,26 @@
   border-radius: 5px;
   text-align: center;
 }
-
+.container .btn2 {
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  background-color: #555;
+  color: white;
+  font-size: 12px;
+  padding: 12px 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+}
 .container .btn:hover {
   background-color: black;
+}
+.container .btn2:hover {
+  background-color: brown;
 }
 .button {
   border: none;
@@ -73,10 +90,17 @@
     width:100px;
     height:100px;
   }
+
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+
 </style>
 </head>
 <body>
-
 
 <script>
   function fardFunc(id) {
@@ -87,14 +111,33 @@ xhr.send();
 }
 </script>
 
+<script>
+  function browserFard(soundFile) {
+    cleanText = soundFile.replace(/\"/g, "");
+      var basePath = "/data/snd/";
+    var path = basePath.concat(cleanText);
+  var meme = new Audio(path); 
+    meme.play();
+}
+</script>
 
+<div class="wrapper">
 {{range .}}
 <div class="container">
   <img src="/data/img/{{.Img}}" alt="poop" style="width:100%">
     <button class="btn" onclick="fardFunc({{.ID}})">{{.Title}}</button>
+
+<button class="btn2" onclick="browserFard(`{{.SoundFile}}`)">Test</button>
 </div>
+
+
+
+<script>
+</script>
+
     {{end}}
 
+</div>
 
     <h1>Upload new meme</h1>
     <form
