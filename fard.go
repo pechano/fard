@@ -1,6 +1,7 @@
 package main
 
 import (
+	"archive/zip"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -48,9 +49,8 @@ type TodoPageData struct {
 
 
 func main() {
-    myRouter := mux.NewRouter().StrictSlash(true)
-
-var templates = template.Must(template.ParseFiles("upload.html"))
+//Load in template related to uploads
+var templates = template.Must(template.ParseFiles("newmeme.html"))
 
 // Display the named template
 	display := func (w http.ResponseWriter, page string, data interface{}) {
@@ -98,15 +98,41 @@ var templates = template.Must(template.ParseFiles("upload.html"))
 		uploadFile(w, r)
 	}
 }
+	//set up handleFuncs for server and restart thereof
+	//and initiate the loop that will allow for restarts of the server once the /shutdown endpoint is hit
+
+ 	cycle := 0
+
+for {
+
+   myRouter := mux.NewRouter().StrictSlash(true)
+
+	myServer := http.Server{Addr: ":10000", Handler: myRouter}
+
+myRouter.HandleFunc("/shutdown", func(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))    // Write response body
+        if err := myServer.Close(); err != nil {
+            log.Fatal(err)
+        }
+    })
+
+
+		if cycle > 0 {fmt.Println("Current reboots:",cycle)}
+		
+//read files to create the meme collection
+		fmt.Println("Looking for new memes")
+discoverMemes()
 	fmt.Println("Gathering Memes")
 	memelist := getlist()
 	fmt.Println("Preparing meme database")
 	memesNoBuffer := preparememes(memelist)
 	fmt.Println("Buffering meme")
-	Memes := getBuffers(memesNoBuffer)
+	Memes := getBuffers(memesNoBuffer,cycle)
+		cycle++
 	fmt.Println("Memes ready:")
 	for _, meme := range Memes{
-		fmt.Println(meme.Title)}
+		fmt.Println(meme.Title)
+		}
 
 	returnAllMemes := func (w http.ResponseWriter, r *http.Request)(){
 		fmt.Println("Endpoint Hit: returnAllMemes")
@@ -129,19 +155,23 @@ if ID < len(Memes) {
 myRouter.PathPrefix("/data").Handler(http.StripPrefix("/data",fileserver))
 	myRouter.HandleFunc("/Memes", returnAllMemes)
 	myRouter.HandleFunc("/fard/{id}", fard)
-
+//Fill in the main page template
 	tmpl := template.Must(template.ParseFiles("index.html"))
 	myRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		tmpl.Execute(w, Memes)
 	})
 
 	myRouter.HandleFunc("/upload", uploadHandler)
-	log.Fatal(http.ListenAndServe(":10000",myRouter))
 
-
+	    if err := myServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+        log.Fatal(err)
+    }
+    log.Printf("Finished")
+	}
+}
 	//This part reads the meme collection and presents them in menu form as a numbered list.
 	//The user inputs a number with ENTER and the corresponding sound will play.
-}
+
 func showMenu(Memes []Meme)(){
 		var choice int
 for {
@@ -162,7 +192,85 @@ for {
 
 }
 
+//en funktion som kigger efter nye .zip-filer og flytter deres indhold til de rigtige mapper.
+func discoverMemes(){
 
+    files,err := os.ReadDir(".")
+	check(err)
+var cleanlist []string
+for _, e := range files {
+		if strings.HasSuffix(e.Name(), ".zip") {
+			cleanlist = append(cleanlist, e.Name())}
+    }
+	for _, archive := range cleanlist{
+
+boosterPack,err := zip.OpenReader(archive)
+	if err != nil {log.Print(err.Error())}
+	defer	boosterPack.Close()
+
+	for _, f := range boosterPack.File {
+		dataPath := filepath.Join("data",f.Name)
+		sndPath := filepath.Join("data","snd",f.Name)
+		imgPath := filepath.Join("data","img",f.Name)
+		//
+			if strings.HasSuffix(f.Name,".json") { 
+		outFile, err := os.OpenFile(dataPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode()) 
+
+		if err != nil {
+	if err != nil {log.Println(err.Error())}
+		}
+		fileInArchive, err := f.Open()
+		if err != nil {
+	if err != nil {log.Println(err.Error())}
+		}
+		if _, err := io.Copy(outFile, fileInArchive); err != nil {
+	if err != nil {log.Println(err.Error())}
+		}
+
+		outFile.Close()
+		fileInArchive.Close()	
+			}
+	
+			if strings.HasSuffix(f.Name,".mp3") { 
+		outFile, err := os.OpenFile(sndPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode()) 
+
+		if err != nil {
+	if err != nil {log.Println(err.Error())}
+		}
+		fileInArchive, err := f.Open()
+		if err != nil {
+	if err != nil {log.Println(err.Error())}
+		}
+		if _, err := io.Copy(outFile, fileInArchive); err != nil {
+	if err != nil {log.Println(err.Error())}
+		}
+
+		outFile.Close()
+		fileInArchive.Close()	
+			}
+			if strings.HasSuffix(f.Name,".jpg") { 
+		outFile, err := os.OpenFile(imgPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode()) 
+
+		if err != nil {
+	if err != nil {log.Println(err.Error())}
+		}
+		fileInArchive, err := f.Open()
+		if err != nil {
+	if err != nil {log.Println(err.Error())}
+		}
+		if _, err := io.Copy(outFile, fileInArchive); err != nil {
+	if err != nil {log.Println(err.Error())}
+		}
+
+		outFile.Close()
+		fileInArchive.Close()	
+			}
+os.Remove(f.Name)
+	}
+os.Remove(archive)	
+	fmt.Println("Files extracted")
+	}
+}
 
 
 //En funktion som tager en sample-rate og et filnavn og returnerer en streamer der kan spiller igen og igen?
@@ -203,7 +311,7 @@ check(err)
 
 defer jsonFile.Close()
 
-byteValue, _ := ioutil.ReadAll(jsonFile)
+		byteValue, _ := ioutil.ReadAll(jsonFile)
 var fard Meme
 		fard.ID = ID
 json.Unmarshal(byteValue, &fard)
@@ -229,7 +337,7 @@ file, _ := json.MarshalIndent(fard, "", " ")
 fmt.Println(fart2)
 
 }
-func getBuffers(memesNoBuffer []Meme)(Memes []Meme){
+func getBuffers(memesNoBuffer []Meme, cycle int)(Memes []Meme){
 
 	f1, err := os.Open(filepath.Join("data","snd","fard.mp3"))
 	if err != nil {
@@ -242,7 +350,7 @@ _, format, err := mp3.Decode(f1)
 	}
 	fardrate := format.SampleRate
 
-	speaker.Init(fardrate, fardrate.N(time.Second/10))
+if cycle == 0 {	speaker.Init(fardrate, fardrate.N(time.Second/10))}
 
 
 	for _, meme := range memesNoBuffer {

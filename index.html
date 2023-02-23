@@ -140,13 +140,7 @@ xhr.send();
 </div>
 
     <h1>Upload new meme</h1>
-    <form
-      enctype="multipart/form-data"
-      action="http://localhost:10000/upload"
-      method="post"
-    >
-      <input type="file" name="myFile" />
-      <input type="submit" value="upload" />
-    </form>
+<button class="btn" onclick="window.location.href =`http://localhost:10000/data/newmemeInstruct.html`;">Upload new meme!</button>
+<button class="btn" onclick="window.location.href =`http://localhost:10000/shutdown`;">Restart server (caution!)</button>
 </body>
 </html>
