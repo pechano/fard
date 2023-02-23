@@ -102,7 +102,7 @@ var templates = template.Must(template.ParseFiles("./data/newmeme.html"))
 	uploadHandler := func (w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		display(w, "upload", nil)
+		display(w, "../upload", nil)
 	case "POST":
 		uploadFile(w, r)
 	}

@@ -119,6 +119,14 @@ xhr.send();
   var meme = new Audio(path); 
     meme.play();
 }
+
+  function reFard() {
+    var url = "./shutdown";
+var xhr = new XMLHttpRequest();
+xhr.open("POST", url, true);
+xhr.send();
+  }
+
 </script>
 
 <div class="wrapper">
@@ -141,6 +149,6 @@ xhr.send();
 
     <h1>Upload new meme</h1>
 <button class="btn" onclick="window.location.href =`./data/newmemeInstruct.html`;">Upload new meme!</button>
-<button class="btn" onclick="window.location.href =`./shutdown`;">Restart server (caution!)</button>
+<button class="btn" onclick="reFard()">Restart server (caution!)</button>
 </body>
 </html>
