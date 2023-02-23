@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -47,8 +48,16 @@ type TodoPageData struct {
     Todos     []Todo
 }
 
-
+ 
 func main() {
+	conn, error := net.Dial("udp", "8.8.8.8:80")
+    if error != nil {
+        fmt.Println(error)
+    }
+
+    defer conn.Close()
+	ipAddress := conn.LocalAddr().( * net.UDPAddr)
+	fmt.Println("Hosting fardserver at:",ipAddress.IP,":10000")
 //Load in template related to uploads
 var templates = template.Must(template.ParseFiles("./data/newmeme.html"))
 
