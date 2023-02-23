@@ -50,7 +50,7 @@ type TodoPageData struct {
 
 func main() {
 //Load in template related to uploads
-var templates = template.Must(template.ParseFiles("newmeme.html"))
+var templates = template.Must(template.ParseFiles("./data/newmeme.html"))
 
 // Display the named template
 	display := func (w http.ResponseWriter, page string, data interface{}) {
