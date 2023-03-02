@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+}
+
+.container img {
+  width: 100%;
+  height: auto;
+}
+
+.container .btn {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  background-color: #555;
+  color: white;
+  font-size: 16px;
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 2px;
+  text-align: center;
+}
+.container .btn2 {
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  background-color: #555;
+  color: white;
+  font-size: 12px;
+  padding: 12px 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+}
+.container .btn:hover {
+  background-color: black;
+}
+.container .btn2:hover {
+  background-color: brown;
+}
+.button {
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+.button1 {
+  background-color: white;
+  color: black;
+  border: 2px solid #4CAF50;
+}
+
+.button1:hover {  
+  background-color: #4CAF50;
+  color: white;
+}
+
+.button2 {
+  background-color: white;
+  color: black;
+  border: 2px solid #008CBA;
+}
+
+.button2:hover {
+  background-color: #008CBA;
+  color: white;
+}
+  .imgbutton
+  {
+    width:100px;
+    height:100px;
+  }
+
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+
+</style>
+</head>
+<body>
+
+<script>
+  function fardFunc(id) {
+    var url = "./fard/"
+var xhr = new XMLHttpRequest();
+xhr.open("POST", url+id, true);
+xhr.send();
+}
+</script>
+
+<script>
+  function browserFard(soundFile) {
+    cleanText = soundFile.replace(/\"/g, "");
+      var basePath = "/data/snd/";
+    var path = basePath.concat(cleanText);
+  var meme = new Audio(path); 
+    meme.play();
+}
+
+  function reFard() {
+    var url = "./shutdown";
+var xhr = new XMLHttpRequest();
+xhr.open("POST", url, true);
+xhr.send();
+  }
+
+</script>
+
+<div class="wrapper">
+{{range .}}
+<div class="container">
+  <img src="/data/img/{{.Img}}" alt="poop" style="width:100%">
+    <button class="btn" onclick="fardFunc({{.ID}})">{{.Title}}</button>
+
+<button class="btn2" onclick="browserFard(`{{.SoundFile}}`)">Test</button>
+</div>
+
+
+
+<script>
+</script>
+
+    {{end}}
+
+</div>
+
+    <h1>Upload new meme</h1>
+<button class="btn" onclick="window.location.href =`./pages/newmemeInstruct.html`;">Upload new meme!</button>
+<button class="btn" onclick="reFard()">Restart server (caution!)</button>
+<button class="btn" onclick="location.reload()">Refresh page</button>
+</body>
+</html>
