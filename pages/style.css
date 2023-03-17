@@ -40,6 +40,8 @@
   border-radius: 5px;
   text-align: center;
 }
+
+
 .container .btn:hover {
   background-color: black;
 }
@@ -92,3 +94,5 @@
   align-content: flex-start;
   gap: 1em;
 }
+
+

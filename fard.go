@@ -254,6 +254,9 @@ var newmeme Meme
 		myRouter.PathPrefix("/pages").Handler(http.StripPrefix("/pages",pageserver))
 		myRouter.HandleFunc("/Memes", returnAllMemes)
 		myRouter.HandleFunc("/fard/{id}", fard)
+		myRouter.HandleFunc("/tts", getOptions)
+
+
 		//Fill in the main page template
 		tmpl := template.Must(template.ParseFiles("./pages/index.html"))
 		myRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
