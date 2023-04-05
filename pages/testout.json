@@ -1,0 +1,14 @@
+[
+ {
+  "Name": "metal pipe",
+  "Duration": 3600,
+  "PlayerType": "loop",
+  "Position": 67
+ },
+ {
+  "Name": "reverb fard",
+  "Duration": 3600,
+  "PlayerType": "loop",
+  "Position": 2500
+ }
+]
