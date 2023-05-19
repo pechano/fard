@@ -13,28 +13,24 @@ import (
 )
 
 
-
-func YTmemehandler (w http.ResponseWriter, r *http.Request) {
+func 	Wgetmemehandler (w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		YTmemepage(w,r)
+		wgetmemepage(w,r)
 	case "POST":
-		YTmeme(w, r)
+
+		wgetmeme(w, r)
 }}
-func YTmemepage(w http.ResponseWriter, r *http.Request) {
-	YTtemplate := template.Must(template.ParseFiles("./pages/ytmeme.html"))
-	err :=	YTtemplate.Execute(w, nil)
+func wgetmemepage(w http.ResponseWriter, r *http.Request) {
+	Wgettemplate := template.Must(template.ParseFiles("./pages/wgetmeme.html"))
+	err :=	Wgettemplate.Execute(w, nil)
 	check(err)}
 
 
-func YTmeme(w http.ResponseWriter, r *http.Request) {
+func wgetmeme(w http.ResponseWriter, r *http.Request) {
 	// Maximum upload of 10 MB files
 	r.ParseMultipartForm(10 << 20)
-
-	// Get handler for filename, size and headers
 	imgFile, imgHandler, err := r.FormFile("image")
-
-
 	if err != nil {
 		fmt.Println("Error Retrieving the File")
 		fmt.Println(err)
@@ -45,12 +41,14 @@ func YTmeme(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Uploaded File: %+v\n", imgHandler.Filename)
 	fmt.Printf("File Size: %+v\n", imgHandler.Size)
 	fmt.Printf("MIME Header: %+v\n", imgHandler.Header)
-	soundfile := r.FormValue("YTsound")
-	GetYTsnd(soundfile)
+	soundfile := r.FormValue("link")
+
+	GetExternalMP3(soundfile)
+	soundfile = filepath.Base(soundfile)
 
 	var newmeme Meme
 	newmeme.Img = imgHandler.Filename
-	newmeme.SoundFile = soundfile+".mp3"
+	newmeme.SoundFile = soundfile
 	newmeme.Title = r.FormValue("title")
 
 	jsonName := r.FormValue("memename")+".json"
@@ -79,8 +77,9 @@ func YTmeme(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Fprintf(w, "Successfully Uploaded File\n %s", homeButton)
 }
-func GetYTsnd(ytid string)(){
-	soundfile := exec.Command("yt-dlp","-x","--audio-format=mp3","-o","data/snd/%(id)s",ytid)
-	err :=	soundfile.Run()
+
+func GetExternalMP3(link string)(){
+	soundfile := exec.Command("wget", "-P", "./data/snd/",link)
+	err := soundfile.Run()
 	check(err)
 }

@@ -1,65 +1,91 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="./pages/style.css">
-<script src="https://kit.fontawesome.com/da6cecf1d1.js" crossorigin="anonymous"></script>
-</head>
-<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./pages/style.css">
+    <script type="text/javascript" src="./pages/scripts.js"></script>
+    <script src="https://kit.fontawesome.com/da6cecf1d1.js" crossorigin="anonymous"></script>
+  </head>
+  <script>
+    getStatus();
+    getMemes();
+    torpedo = 0 ;
+  </script>
 
-<script>
-  function fardFunc(id) {
-    var url = "./fard/"
-var xhr = new XMLHttpRequest();
-xhr.open("POST", url+id, true);
-xhr.send();
-}
-</script>
 
-<script>
-  function browserFard(soundFile) {
-    cleanText = soundFile.replace(/\"/g, "");
-      var basePath = "/data/snd/";
-    var path = basePath.concat(cleanText);
-  var meme = new Audio(path); 
-    meme.play();
-}
+  <body>
+    <main>
 
-  function reFard() {
-    var url = "./shutdown";
-var xhr = new XMLHttpRequest();
-xhr.open("POST", url, true);
-xhr.send();
-    setTimeout(function(){
-   window.location.reload();
-}, 2000);
-  }
 
-</script>
+      <header>
+        <div class="status">
+          <button class="button" onclick="reFard()">Refresh memes</button>
 
-<div class="wrapper">
-{{range .}}
-<div class="container">
-  <img src="/data/img/{{.Img}}" alt="poop" style="width:100%">
-    <button class="btn" onclick="fardFunc({{.ID}})">{{.Title}}</button>
+          </div>
 
-<button class="btn2" onclick="browserFard(`{{.SoundFile}}`)"><i class="fa-solid fa-headphones"></i></button>
+
+
+          <div class="hoverinfo" 
+               onclick="getStatus()">
+            <span> Status</span>
+            <div class="dropdown-content">
+              Current memes:<div id="current">xx</div> 
+              <br />
+              New memes:<div id="next">xx</div>
+            </div>
+        </div>
+
+<div class="dropdown">
+  <button class="dropbtn">New content</button>
+  <div class="dropdown-content">
+    <a href="./pages/ttsmeme.html">TTS</a>
+    <a href="./pages/newmemeInstruct.html">New meme</a>
+  </div>
+</div>
+        <a class="logo" href="/https://github.com/pechano/fard">fardserver v1</a>
+
+
+        <form onsubmit = "fardFunc(torpedo)"
+>
+                    <input
+              onkeydown="browserFard('poot.mp3')"
+              onkeyup="getFilteredMemes(value)"
+
+              autofocus
+              value=""
+              placeholder="Filter"
+              type="text"
+              />
+        </form>
+
+
+      </header>
+<!--
+      <div class="wrapper">
+        {{range .}}
+        <div class="container">
+          <img src="/data/img/{{.Img}}" alt="poop" style="width:100%">
+          <button class="btn" onclick="fardFunc({{.ID}})">{{.Title}}</button>
+
+          <button class="btn2" onclick="browserFard({{.SoundFile}})"><i class="fa-solid fa-headphones"></i></button>
+        </div>
+
+
+
+        {{end}}
+
+      </div>
+-->
+<div>
+    <br />
+    <br />
+    <br />
+    </main>
+    <br />
 </div>
 
+      <div id="maymay"></div> 
 
-<script>
-</script>
-
-    {{end}}
-
-</div>
-
-    <h1>Upload new meme</h1>
-<button class="btn" onclick="window.location.href =`./pages/newmemeInstruct.html`;">Upload new meme!</button>
-<button class="btn" onclick="reFard()">Reload memes (wait 2 sec)</button>
-<button class="btn" onclick="location.reload()">Refresh page</button>
-    <h1>Text To Speech</h1>
-<button class="btn" onclick="window.location.href =`./pages/ttsmeme.html`;">TTS query!</button>
-</body>
+  </body>
 </html>
