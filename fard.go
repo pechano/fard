@@ -43,24 +43,6 @@ type Memecollection struct{
 	Lock bool
 }
 
-func buildMeme(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain")
-	fmt.Println(r.Header)
-	fmt.Println(r.Body)
-	var build Meme
-	_ = json.NewDecoder(r.Body).Decode(&build)
-	fmt.Println("before encode: ",build)
-	json.NewEncoder(w).Encode(build)
-	fmt.Println("New meme received: ",build)
-}
-
-
-
-
-func handlePost(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "post\n")
-}
-
 
 
 func main() {
@@ -79,129 +61,8 @@ if port == "" {port = "10000"}
 	ipAddress := conn.LocalAddr().( * net.UDPAddr)
 	fmt.Println("Hosting fardserver at:",ipAddress.IP,":10000")
 	//Load in template related to uploads
-	var newmeme = template.Must(template.ParseFiles("./pages/newmeme.html"))
-
-	// Display the named template
-	display := func (w http.ResponseWriter, page string, data interface{}) {
-		newmeme.ExecuteTemplate(w, page+".html", data)
-	}
-	uploadFile :=func (w http.ResponseWriter, r *http.Request) {
-		// Maximum upload of 10 MB files
-		r.ParseMultipartForm(10 << 20)
-
-		// Get handler for filename, size and headers
-		file, handler, err := r.FormFile("myFile")
-		if err != nil {
-			fmt.Println("Error Retrieving the File")
-			fmt.Println(err)
-			return
-		}
-
-		defer file.Close()
-		fmt.Printf("Uploaded File: %+v\n", handler.Filename)
-		fmt.Printf("File Size: %+v\n", handler.Size)
-		fmt.Printf("MIME Header: %+v\n", handler.Header)
-
-		// Create file
-		dst, err := os.Create(handler.Filename)
-		defer dst.Close()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Copy the uploaded file to the created file on the filesystem
-		if _, err := io.Copy(dst, file); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		const homeButton = `<a href=../>Go home</a>`
 
 
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "Successfully Uploaded File\n %s", homeButton)
-	}
-
-	uploadHandler := func (w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "GET":
-			display(w, "../upload", nil)
-		case "POST":
-			uploadFile(w, r)
-		}
-	}
-	uploadmeme :=func (w http.ResponseWriter, r *http.Request) {
-		// Maximum upload of 10 MB files
-		r.ParseMultipartForm(10 << 20)
-
-		// Get handler for filename, size and headers
-		imgFile, imgHandler, err := r.FormFile("image")
-
-		sndFile, sndHandler, err := r.FormFile("sound")
-		if err != nil {
-			fmt.Println("Error Retrieving the File")
-			fmt.Println(err)
-			return
-		}
-
-		defer imgFile.Close()
-		defer sndFile.Close()
-		fmt.Printf("Uploaded File: %+v\n", imgHandler.Filename)
-		fmt.Printf("Uploaded File: %+v\n", sndHandler.Filename)
-		fmt.Printf("File Size: %+v\n", imgHandler.Size)
-		fmt.Printf("MIME Header: %+v\n", imgHandler.Header)
-		var newmeme Meme
-		newmeme.Img = imgHandler.Filename
-		newmeme.SoundFile = sndHandler.Filename
-		newmeme.Title = r.FormValue("title")
-
-		jsonName := r.FormValue("memename")+".json"
-		jsonNamePath := filepath.Join("data",jsonName)
-		fmt.Println("New meme submitted: ",newmeme)
-		file, _ := json.MarshalIndent(newmeme,""," ")
-		_ = ioutil.WriteFile(jsonNamePath,file, 0644)
-
-		// Create file
-		dst, err := os.Create(filepath.Join("data","img",imgHandler.Filename))
-		defer dst.Close()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Copy the uploaded file to the created file on the filesystem
-		if _, err := io.Copy(dst, imgFile); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Create file
-		dst, err = os.Create(filepath.Join("data","snd",sndHandler.Filename))
-		defer dst.Close()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Copy the uploaded file to the created file on the filesystem
-		if _, err := io.Copy(dst, sndFile); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		const homeButton = `<a href=../>Go home</a>`
-
-
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "Successfully Uploaded File\n %s", homeButton)
-	}
-	uploadmemeHandler := func (w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "GET":
-			display(w, "../uploadmeme", nil)
-		case "POST":
-			uploadmeme(w, r)
-	}}
 	//set up handleFuncs for server and restart thereof
 	//and initiate the loop that will allow for restarts of the server once the /shutdown endpoint is hit
 
@@ -217,6 +78,7 @@ if port == "" {port = "10000"}
 
 
 	for {
+		//set up the main router and the handler for "/shutdown", which will restart the server.
 		myRouter := mux.NewRouter().StrictSlash(true)
 
 		myServer := http.Server{Addr: ":"+port, Handler: myRouter}
@@ -266,6 +128,26 @@ status.NewMemes = len(Memes)
 			} else {fmt.Println("Out of range request made")}
 		}
 
+
+
+var PoolTemp string
+		PoolTemp = "11.1"
+		getTemp := func (w http.ResponseWriter, r *http.Request)(){
+			vars := mux.Vars(r)
+			key := vars["temp"]
+*&PoolTemp = key
+			fmt.Println(PoolTemp)//for testing purposes, can be removed
+		}
+		myRouter.HandleFunc("/logger/{temp}", getTemp)
+
+
+		pooltemplate := template.Must(template.ParseFiles("./pages/temp.html"))
+		myRouter.HandleFunc("/temp", func(w http.ResponseWriter, r *http.Request) {
+			err :=	pooltemplate.Execute(w, PoolTemp)
+			check(err)
+		})
+
+
 		fileserver := http.FileServer(http.Dir("./data"))
 		pageserver := http.FileServer(http.Dir("./pages"))
 
@@ -301,6 +183,12 @@ myRouter.HandleFunc("/status", statushandler)
 			json.NewEncoder(w).Encode(FilteredMemes)
 		}
 
+		//generates two fake loops for testing purposes
+		var looplist playerinfo 	
+		looplist.fakeloops()
+
+
+		myRouter.HandleFunc("/loops",looplist.sendloops)
 
 		myRouter.HandleFunc("/filtermemes/{term}", filterhandler)
 		//Fill in the main page template
@@ -337,6 +225,7 @@ myRouter.HandleFunc("/reload", reloadhandler)
 
 		myRouter.HandleFunc("/newmeme",func(w http.ResponseWriter, r *http.Request){
 
+	var newmeme = template.Must(template.ParseFiles("./pages/newmeme.html"))
 			err := newmeme.Execute(w,nil)
 			check(err)
 		})

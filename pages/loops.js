@@ -1,9 +1,5 @@
-
+"use strict";
 async function getData(url) {
-  const response = await fetch(url);
-
-  return response.json();
+    const response = await fetch(url);
+    return response.json();
 }
-
-
-

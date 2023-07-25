@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Pool temperature</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script src="./pages/sevenSeg.js"></script>
+  </head>
+ <body style="background-color:black;">
+
+   {{ . }}
+    <div id="exampleArray" ;></div>
+
+    <script>
+      $("#exampleArray").sevenSeg({ digits: 3, value:  {{ . }} });
+      setTimeout("location.reload(true);", 10000);
+    </script>
+
+  </body>
+</html>
