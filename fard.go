@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -51,12 +50,10 @@ func main() {
 	port := os.Getenv("port")
 if port == "" {port = "10000"}
 
-
 	conn, error := net.Dial("udp", "8.8.8.8:80")
 	if error != nil {
 		fmt.Println(error)
 	}
-
 	defer conn.Close()
 	ipAddress := conn.LocalAddr().( * net.UDPAddr)
 	fmt.Println("Hosting fardserver at:",ipAddress.IP,":10000")
@@ -65,31 +62,21 @@ if port == "" {port = "10000"}
 
 	//set up handleFuncs for server and restart thereof
 	//and initiate the loop that will allow for restarts of the server once the /shutdown endpoint is hit
-
-
-
-
-
 	cycle := 0
 	var Oldlist []string
-
 	var Oldmemes []Meme
 	var status status
-
-
 	for {
 		//set up the main router and the handler for "/shutdown", which will restart the server.
 		myRouter := mux.NewRouter().StrictSlash(true)
 
 		myServer := http.Server{Addr: ":"+port, Handler: myRouter}
-
 		myRouter.HandleFunc("/shutdown", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("OK"))    // Write response body
 			if err := myServer.Close(); err != nil {
 				log.Fatal(err)
 			}
 		})
-
 
 		if cycle > 0 {fmt.Println("Current reloads:",cycle)}
 
@@ -113,7 +100,6 @@ if port == "" {port = "10000"}
 
 status.Memes = len(Memes)
 status.NewMemes = len(Memes)
-	
 		fard := func (w http.ResponseWriter, r *http.Request)(){
 			vars := mux.Vars(r)
 			key := vars["id"]
@@ -127,7 +113,6 @@ status.NewMemes = len(Memes)
 			fmt.Printf("Endpoint Hit: %s \n",Memes[ID].Title)
 			} else {fmt.Println("Out of range request made")}
 		}
-
 
 
 var PoolTemp string
@@ -202,7 +187,6 @@ myRouter.HandleFunc("/status", statushandler)
 			MemesReloaded := reloadmemes(Memes,Oldlist,1)
 			status.NewMemes = len(MemesReloaded)
 		}
-
 myRouter.HandleFunc("/reload", reloadhandler)
 
 		myRouter.HandleFunc("/upload", uploadHandler)
@@ -364,19 +348,28 @@ func discoverMemes(){
 	fmt.Println("Files extracted")
 }
 
-
-
-//En funktion som tager en sample-rate og et filnavn og returnerer en streamer der kan spiller igen og igen?
-//Sample rate er unødvendigt, da FARD altid være være udgangspunktet.
 func filterMemesFromJS(memes []Meme, input string)(filteredmemes []Meme){
 
-	for _, meme := range memes {
-if strings.Contains(meme.Title,input){
-			filteredmemes = append(filteredmemes, meme)
-		}
+	inputSlice := strings.Split(input, " ")
+	resultsize := len(inputSlice)
+	result := make([][]Meme, resultsize+1)
+	temp := memes
+
+	result[0] = temp
+	for i:=0 ; i<=resultsize-1;i++ {
+	
+var temp []Meme
+			for _, meme := range result[i] {
+				if strings.Contains(meme.Title,inputSlice[i]){
+					temp = append(temp, meme)
+			}
 	}
-return filteredmemes
+					result[i+1] = temp
+	}
+	return result[resultsize]
 }
+
+
 
 
 func getlist()(cleanlist []string){
@@ -415,7 +408,7 @@ func preparememes(files []string, Oldmemes []Meme)(Memes []Meme){
 
 			defer jsonFile.Close()
 
-			byteValue, _ := ioutil.ReadAll(jsonFile)
+			byteValue, _ := io.ReadAll(jsonFile)
 			var fard Meme
 			fard.ID = ID
 			json.Unmarshal(byteValue, &fard)
@@ -433,7 +426,7 @@ func preparememes(files []string, Oldmemes []Meme)(Memes []Meme){
 
 			defer jsonFile.Close()
 
-			byteValue, _ := ioutil.ReadAll(jsonFile)
+			byteValue, _ := io.ReadAll(jsonFile)
 			var fard Meme
 			fard.ID = ID
 			json.Unmarshal(byteValue, &fard)
@@ -472,7 +465,7 @@ func savememes(){
 	var fard Meme
 	file, _ := json.MarshalIndent(fard, "", " ")
 
-	_ = ioutil.WriteFile("test.json", file, 0644)
+	_ = os.WriteFile("test.json", file, 0644)
 	b, err := json.Marshal(fard)
 	check(err)
 	fmt.Println(fard)
