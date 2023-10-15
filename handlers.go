@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -18,6 +17,7 @@ import (
 
 		// Get handler for filename, size and headers
 		imgFile, imgHandler, err := r.FormFile("image")
+	check(err)
 		sndFile, sndHandler, err := r.FormFile("sound")
 		if err != nil {
 			fmt.Println("Error Retrieving the File")
@@ -42,7 +42,7 @@ import (
 		jsonNamePath := filepath.Join("data",jsonName)
 		fmt.Println("New meme submitted: ",newmeme)
 		file, _ := json.MarshalIndent(newmeme,""," ")
-		_ = ioutil.WriteFile(jsonNamePath,file, 0644)
+		_ = os.WriteFile(jsonNamePath,file, 0644)
 
 		// Create file
 		dst, err := os.Create(filepath.Join("data","img",imgHandler.Filename))
@@ -57,7 +57,6 @@ import (
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		// Create file
 		dst, err = os.Create(filepath.Join("data","snd",sndHandler.Filename))
 		defer dst.Close()
@@ -71,22 +70,15 @@ import (
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+	bufferchannel <- newmeme
 		const homeButton = `<a href=../>Go home</a>`
 
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprintf(w, "Successfully Uploaded File\n %s", homeButton)
 	}
-func buildMeme(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain")
-	fmt.Println(r.Header)
-	fmt.Println(r.Body)
-	var build Meme
-	_ = json.NewDecoder(r.Body).Decode(&build)
-	fmt.Println("before encode: ",build)
-	json.NewEncoder(w).Encode(build)
-	fmt.Println("New meme received: ",build)
-}
+
 
 
 	 func display (w http.ResponseWriter, page string, data interface{}) {

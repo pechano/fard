@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-
+  <link rel="icon" type="image/x-icon" href="./pages/Bic_logo.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="./pages/style.css">
     <script type="text/javascript" src="./pages/scripts.js"></script>
@@ -19,43 +19,41 @@
 
 
       <header>
-          <button class="button" onclick="reFard()">Refresh memes</button>
+        <!--
+        <button class="button" onclick="reFard()">Refresh memes</button>
+        -->
+        <div class="hoverinfo" 
+             onclick="getStatus()">
+          <span> Status</span>
 
-
-
-
-          <div class="hoverinfo" 
-               onclick="getStatus()">
-            <span> Status</span>
-
-            <div class="dropdown-content">
-              Current memes:<div id="current">xx</div> 
-              <br />
-              New memes:<div id="next">xx</div>
-            </div>
+          <div class="dropdown-content">
+            Current memes:<div id="current">xx</div> 
+            <br />
+            New memes:<div id="next">xx</div>
+          </div>
         </div>
 
-<div class="dropdown">
-  <button class="dropbtn">New content</button>
-  <div class="dropdown-content">
-    <a href="./pages/ttsmeme.html">TTS</a>
-    <a href="./pages/newmemeInstruct.html">New meme</a>
-  </div>
-</div>
-        <a class="logo" href="/https://github.com/pechano/fard">fardserver v1</a>
+        <div class="dropdown">
+          <button class="dropbtn">New content</button>
+          <div class="dropdown-content">
+            <a href="./pages/ttsmeme.html">TTS</a>
+            <a href="./pages/newmemeInstruct.html">New meme</a>
+          </div>
+        </div>
+        <a class="logo" href="https://github.com/pechano/fard">fardserver v1</a>
 
 
         <form onsubmit = "fardFunc(torpedo)"
->
-                    <input
-              onkeydown="browserFard('poot.mp3')"
-              onkeyup="getFilteredMemes(value)"
+              >
+              <input
+                  onkeydown="browserFard('poot.mp3')"
+                  onkeyup="getFilteredMemes(value)"
 
-              autofocus
-              value=""
-              placeholder="Filter"
-              type="text"
-              />
+                  autofocus
+                  value=""
+                  placeholder="Filter"
+                  type="text"
+                  />
         </form>
 
 

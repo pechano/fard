@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -55,7 +54,7 @@ func wgetmeme(w http.ResponseWriter, r *http.Request) {
 	jsonNamePath := filepath.Join("data",jsonName)
 	fmt.Println("New meme submitted: ",newmeme)
 	file, _ := json.MarshalIndent(newmeme,""," ")
-	_ = ioutil.WriteFile(jsonNamePath,file, 0644)
+	_ = os.WriteFile(jsonNamePath,file, 0644)
 
 	// Create file
 	dst, err := os.Create(filepath.Join("data","img",imgHandler.Filename))
@@ -70,12 +69,13 @@ func wgetmeme(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	const homeButton = `<a href=../>Go home</a>`
 
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Fprintf(w, "Successfully Uploaded File\n %s", homeButton)
+
+bufferchannel <- newmeme
 }
 
 func GetExternalMP3(link string)(){

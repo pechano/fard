@@ -40,15 +40,17 @@ type Memecollection struct{
 	UID int
 	Memes []Meme
 	Lock bool
+	channel chan Meme
+	fardrate beep.SampleRate
 }
 
-
+var bufferchannel chan Meme
 
 func main() {
 	err := godotenv.Load()
 	check(err)
 	port := os.Getenv("port")
-if port == "" {port = "10000"}
+	if port == "" {port = "10000"}
 
 	conn, error := net.Dial("udp", "8.8.8.8:80")
 	if error != nil {
@@ -57,16 +59,35 @@ if port == "" {port = "10000"}
 	defer conn.Close()
 	ipAddress := conn.LocalAddr().( * net.UDPAddr)
 	fmt.Println("Hosting fardserver at:",ipAddress.IP,":10000")
-	//Load in template related to uploads
 
 
 	//set up handleFuncs for server and restart thereof
-	//and initiate the loop that will allow for restarts of the server once the /shutdown endpoint is hit
-	cycle := 0
-	var Oldlist []string
-	var Oldmemes []Meme
 	var status status
-	for {
+
+var collection Memecollection
+	collection.channel = make(chan Meme)
+	bufferchannel = make(chan Meme)
+
+	f1, err := os.Open(filepath.Join("data","snd","fard.mp3"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, format, err := mp3.Decode(f1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fardrate := format.SampleRate
+
+		speaker.Init(fardrate, fardrate.N(time.Second/10))
+collection.fardrate = fardrate
+
+		fmt.Println("Looking for new memes")
+		discoverMemes()
+	go collection.Manager()
+	go scanForMemes(collection)
+	go bufferman(bufferchannel, collection )
+
 		//set up the main router and the handler for "/shutdown", which will restart the server.
 		myRouter := mux.NewRouter().StrictSlash(true)
 
@@ -78,49 +99,33 @@ if port == "" {port = "10000"}
 			}
 		})
 
-		if cycle > 0 {fmt.Println("Current reloads:",cycle)}
 
 		//read files to create the meme collection
-		fmt.Println("Looking for new memes")
-		discoverMemes()
-		fmt.Println("Gathering Memes")
-		memelist := getlist()
-		memelist = filterMemes(Oldlist,memelist)
 
-		fmt.Println("Preparing meme database")
-		memesNoBuffer := preparememes(memelist, Oldmemes )
-		fmt.Println("Buffering memes")
-		Memes := getBuffers(memesNoBuffer,cycle)
-		cycle++
-		fmt.Println("Memes ready:")
-		for _, meme := range Memes{
-			fmt.Println(meme.Title)
-		}
-		Oldlist = getlist()
 
-status.Memes = len(Memes)
-status.NewMemes = len(Memes)
+		status.Memes = len(collection.Memes)
+		status.NewMemes = len(collection.Memes)
 		fard := func (w http.ResponseWriter, r *http.Request)(){
 			vars := mux.Vars(r)
 			key := vars["id"]
 			ID, err := strconv.Atoi(key)
 			if err != nil {fmt.Println("Error during conversion")
 			return}
-			if ID < len(Memes) {
-				fart := Memes[ID].buffer.Streamer(0,Memes[ID].buffer.Len() )
+			if ID < len(collection.Memes) {
+				fart := collection.Memes[ID].buffer.Streamer(0,collection.Memes[ID].buffer.Len() )
 				speaker.Play(fart)
 
-			fmt.Printf("Endpoint Hit: %s \n",Memes[ID].Title)
+				fmt.Printf("Endpoint Hit: %s \n",collection.Memes[ID].Title)
 			} else {fmt.Println("Out of range request made")}
 		}
 
 
-var PoolTemp string
+		var PoolTemp string
 		PoolTemp = "11.1"
 		getTemp := func (w http.ResponseWriter, r *http.Request)(){
 			vars := mux.Vars(r)
 			key := vars["temp"]
-*&PoolTemp = key
+			*&PoolTemp = key
 			fmt.Println(PoolTemp)//for testing purposes, can be removed
 		}
 		myRouter.HandleFunc("/logger/{temp}", getTemp)
@@ -141,22 +146,22 @@ var PoolTemp string
 
 		myRouter.HandleFunc("/fard/{id}", fard)
 		myRouter.HandleFunc("/tts", getOptions)
-		
-		
+
+
 		statushandler := func(w http.ResponseWriter, r *http.Request)(){ 
 			json.NewEncoder(w).Encode(status)
 		}
 
-myRouter.HandleFunc("/status", statushandler)
+		myRouter.HandleFunc("/status", statushandler)
 
 
 		refreshhandler := func(w http.ResponseWriter, r *http.Request)(){ 
-			json.NewEncoder(w).Encode(Memes)
+			json.NewEncoder(w).Encode(collection.Memes)
 		}
 
 
 		myRouter.HandleFunc("/refreshmemes", refreshhandler)
-		
+
 		filterhandler := func(w http.ResponseWriter, r *http.Request)(){ 
 
 			vars := mux.Vars(r)
@@ -164,7 +169,7 @@ myRouter.HandleFunc("/status", statushandler)
 			key := vars["term"]
 			term := key
 			check(err)
-			FilteredMemes := filterMemesFromJS(Memes, term)
+			FilteredMemes := filterMemesFromJS(collection.Memes, term)
 			json.NewEncoder(w).Encode(FilteredMemes)
 		}
 
@@ -179,15 +184,9 @@ myRouter.HandleFunc("/status", statushandler)
 		//Fill in the main page template
 		tmpl := template.Must(template.ParseFiles("./pages/index.html"))
 		myRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			err :=	tmpl.Execute(w, Memes)
+			err :=	tmpl.Execute(w, collection.Memes)
 			check(err)
 		})
-
-		reloadhandler := func(w http.ResponseWriter, r *http.Request){
-			MemesReloaded := reloadmemes(Memes,Oldlist,1)
-			status.NewMemes = len(MemesReloaded)
-		}
-myRouter.HandleFunc("/reload", reloadhandler)
 
 		myRouter.HandleFunc("/upload", uploadHandler)
 
@@ -195,8 +194,7 @@ myRouter.HandleFunc("/reload", reloadhandler)
 		myRouter.HandleFunc("/YTmeme", YTmemehandler)
 
 		myRouter.HandleFunc("/wgetmeme", Wgetmemehandler)
-		myRouter.HandleFunc("/builder", buildMeme).Methods("POST")
-		//initiate the builder template
+
 
 		myRouter.HandleFunc("/memebuilder", func(w http.ResponseWriter, r *http.Request){
 			details := Meme{
@@ -209,7 +207,7 @@ myRouter.HandleFunc("/reload", reloadhandler)
 
 		myRouter.HandleFunc("/newmeme",func(w http.ResponseWriter, r *http.Request){
 
-	var newmeme = template.Must(template.ParseFiles("./pages/newmeme.html"))
+			var newmeme = template.Must(template.ParseFiles("./pages/newmeme.html"))
 			err := newmeme.Execute(w,nil)
 			check(err)
 		})
@@ -218,23 +216,21 @@ myRouter.HandleFunc("/reload", reloadhandler)
 		if err := myServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatal(err)
 		}
-		Oldmemes = Memes
 		log.Printf("Finished")
-	}
 
 
 }
-	  func reloadmemes(currentMemes []Meme, Oldlist []string, cycle int) (MemesReloaded []Meme) {
-discoverMemes()
-		memelist := getlist()
-		memelist = filterMemes(Oldlist,memelist)
+func reloadmemes(currentMemes []Meme, Oldlist []string, cycle int) (MemesReloaded []Meme) {
+	discoverMemes()
+	memelist := getlist()
+	memelist = filterMemes(Oldlist,memelist)
 
-		fmt.Println("Preparing meme database")
-		memesNoBuffer := preparememes(memelist, currentMemes )
-		fmt.Println("Buffering memes")
-		MemesReloaded = getBuffers(memesNoBuffer,cycle)
-return MemesReloaded
-	}
+	fmt.Println("Preparing meme database")
+	memesNoBuffer := preparememes(memelist, currentMemes )
+	fmt.Println("Buffering memes")
+	MemesReloaded = getBuffers(memesNoBuffer,cycle)
+	return MemesReloaded
+}
 
 //This part reads the meme collection and presents them in menu form as a numbered list.
 //The user inputs a number with ENTER and the corresponding sound will play.
@@ -357,14 +353,14 @@ func filterMemesFromJS(memes []Meme, input string)(filteredmemes []Meme){
 
 	result[0] = temp
 	for i:=0 ; i<=resultsize-1;i++ {
-	
-var temp []Meme
-			for _, meme := range result[i] {
-				if strings.Contains(meme.Title,inputSlice[i]){
-					temp = append(temp, meme)
+
+		var temp []Meme
+		for _, meme := range result[i] {
+			if strings.Contains(meme.Title,inputSlice[i]){
+				temp = append(temp, meme)
 			}
-	}
-					result[i+1] = temp
+		}
+		result[i+1] = temp
 	}
 	return result[resultsize]
 }
@@ -472,6 +468,7 @@ func savememes(){
 	fmt.Println(string(b[:]))
 	var fart2 Meme
 	err = json.Unmarshal(b,&fart2)
+	check(err)
 	fmt.Println(fart2)
 }
 
@@ -495,7 +492,7 @@ func getBuffers(memesNoBuffer []Meme, cycle int)(Memes []Meme){
 	for _, meme := range memesNoBuffer {
 		if meme.buffer != nil {fmt.Println("buffer found, skipping")
 			Memes=append(Memes, meme)
-		continue} else {
+			continue} else {
 
 
 			f, err := os.Open(filepath.Join("data","snd",meme.SoundFile))
@@ -514,3 +511,86 @@ func getBuffers(memesNoBuffer []Meme, cycle int)(Memes []Meme){
 	return Memes
 }
 
+
+func (m *Memecollection) Manager(){
+	for {
+
+			newmeme := <-m.channel
+			nextID := len(m.Memes)
+			newmeme.ID = nextID
+			m.Memes = append(m.Memes, newmeme)
+		fmt.Println("new meme added: "+newmeme.Title)
+
+}}
+
+//Big function to scan the data folder for .json files, create buffers, and send the Meme struct off to the .Manager function.
+
+func scanForMemes(collection Memecollection)(){
+	files,err := os.ReadDir(filepath.Join("data"))
+	check(err)
+var cleanlist []string
+	for _, e := range files {
+		if strings.HasSuffix(e.Name(), ".json") {
+			cleanlist = append(cleanlist, e.Name())}
+	}
+	var rawlist []string
+	for _, file := range rawlist{
+		if strings.HasSuffix(file, ".json") {
+			cleanlist = append(cleanlist, file)}
+	}
+
+
+		for _, file := range cleanlist{
+
+			var fard Meme
+			jsonFile, err := os.Open(filepath.Join("data",file))
+			check(err)
+
+			defer jsonFile.Close()
+
+			byteValue, _ := io.ReadAll(jsonFile)
+
+			json.Unmarshal(byteValue, &fard)
+	
+			f, err := os.Open(filepath.Join("data","snd",fard.SoundFile))
+
+		if err != nil {
+			os.Remove(filepath.Join("data",file))
+			fmt.Println("Removing faulty json file: "+file)
+			continue}
+
+			streamer, format, err := mp3.Decode(f)
+check(err)
+
+			resampled := beep.Resample(4,format.SampleRate,collection.fardrate,streamer)
+
+			fard.buffer = beep.NewBuffer(format)
+			fard.buffer.Append(resampled)
+			streamer.Close()
+	collection.channel <- fard	
+	}
+
+
+
+}
+
+func bufferman(bufferchannel chan Meme, collection Memecollection)  {
+for {
+		memeNoBuffer :=  <-bufferchannel
+fmt.Println("Received new meme, creating buffer")
+
+			f, err := os.Open(filepath.Join("data","snd",memeNoBuffer.SoundFile))
+			check(err)
+			streamer, format, err := mp3.Decode(f)
+
+			check(err)
+			resampled := beep.Resample(4,format.SampleRate,collection.fardrate,streamer)
+
+			memeNoBuffer.buffer = beep.NewBuffer(format)
+			memeNoBuffer.buffer.Append(resampled)
+			streamer.Close()
+		fmt.Println("New soundbite buffered, sending to Meme manager")
+	collection.channel <- memeNoBuffer	
+
+}
+}

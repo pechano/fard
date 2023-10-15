@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -57,7 +56,7 @@ func YTmeme(w http.ResponseWriter, r *http.Request) {
 	jsonNamePath := filepath.Join("data",jsonName)
 	fmt.Println("New meme submitted: ",newmeme)
 	file, _ := json.MarshalIndent(newmeme,""," ")
-	_ = ioutil.WriteFile(jsonNamePath,file, 0644)
+	_ = os.WriteFile(jsonNamePath,file, 0644)
 
 	// Create file
 	dst, err := os.Create(filepath.Join("data","img",imgHandler.Filename))
@@ -72,7 +71,7 @@ func YTmeme(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+bufferchannel <- newmeme
 	const homeButton = `<a href=../>Go home</a>`
 
 
