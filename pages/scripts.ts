@@ -29,16 +29,16 @@ const url: string = "./status";
 const response = await fetch(url);
 const jsonData = await response.json();
 
-  const currentMemeStatus = jsonData.current_memes;
-  const current = document.getElementById("current");
-  const p = document.createElement("current_status");
-  p.textContent = currentMemeStatus ;
+  const MemeStatus = jsonData.memes;
+  const current = document.getElementById("memes");
+  const p = document.createElement("memes");
+  p.textContent = MemeStatus ;
   current?.replaceWith(p);
 
-  const nextMemeStatus = jsonData.next_memes;
-  const next = document.getElementById("next");
-  const pp = document.createElement("next_status");
-  pp.textContent = nextMemeStatus ;
+  const LoopStatus = jsonData.loops;
+  const next = document.getElementById("loops");
+  const pp = document.createElement("loops");
+  pp.textContent = LoopStatus ;
   next?.replaceWith(pp);
 
 }
@@ -104,3 +104,6 @@ globalThis.torpedo = jsonData[0].ID;
   var maymay = document.getElementById("maymay");
 maymay?.replaceWith(temp);
 }
+
+
+

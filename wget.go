@@ -75,7 +75,7 @@ func wgetmeme(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Fprintf(w, "Successfully Uploaded File\n %s", homeButton)
 
-bufferchannel <- newmeme
+Memebufferchannel <- newmeme
 }
 
 func GetExternalMP3(link string)(){

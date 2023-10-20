@@ -71,7 +71,7 @@ import (
 			return
 		}
 
-	bufferchannel <- newmeme
+	Memebufferchannel <- newmeme
 		const homeButton = `<a href=../>Go home</a>`
 
 
@@ -93,7 +93,13 @@ import (
 			uploadFile(w, r)
 		}
 	}
-
+	 func uploadloopHandler (w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			display(w, "../uploadloop", nil)
+		case "POST":
+			uploadNewLoop(w, r)
+	}}
 	 func uploadmemeHandler (w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":

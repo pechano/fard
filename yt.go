@@ -71,7 +71,7 @@ func YTmeme(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-bufferchannel <- newmeme
+Memebufferchannel <- newmeme
 	const homeButton = `<a href=../>Go home</a>`
 
 
