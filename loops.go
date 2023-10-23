@@ -143,7 +143,7 @@ func (l *LoopsData) Manager(){
 		var newloop loop
 		newloop.Img = imgHandler.Filename
 		newloop.Filename = sndHandler.Filename
-	if filepath.Ext(newloop.Filename) !="wav"  {
+	if filepath.Ext(newloop.Filename) !=".wav"  {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprintf(w, "Loop not added. File format MUST be .wav with 44100 Hz sample rate\n")
 	return}
