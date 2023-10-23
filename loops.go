@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	"github.com/gopxl/beep"
-	"github.com/gopxl/beep/mp3"
 	"github.com/gopxl/beep/speaker"
+	"github.com/gopxl/beep/wav"
 	"github.com/gorilla/mux"
 )
 
@@ -73,7 +73,7 @@ func scanForLoops(loops *LoopsData)(){
 
 	f, err := os.Open(filepath.Join("data","loops",loop.Filename))
 		check(err)
-streamer, format, err := mp3.Decode(f)
+streamer, format, err := wav.Decode(f)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -143,6 +143,10 @@ func (l *LoopsData) Manager(){
 		var newloop loop
 		newloop.Img = imgHandler.Filename
 		newloop.Filename = sndHandler.Filename
+	if filepath.Ext(newloop.Filename) !="wav"  {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		fmt.Fprintf(w, "Loop not added. File format MUST be .wav with 44100 Hz sample rate\n")
+	return}
 		newloop.Name = r.FormValue("title")
 
 		jsonName := r.FormValue("loopsname")+".json"
@@ -194,7 +198,7 @@ func LoopBufferman(bufferchannel chan loop, loops LoopsData)  {
 
 		f, err := os.Open(filepath.Join("data","loops",loopNoBuffer.Filename))
 		check(err)
-		streamer, format, err := mp3.Decode(f)
+		streamer, format, err := wav.Decode(f)
 
 		check(err)
 		resampled := beep.Resample(4,format.SampleRate,collection.fardrate,streamer)
