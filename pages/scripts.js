@@ -1,5 +1,11 @@
 "use strict";
 var torpedo;
+function soren() {
+    var url = "./soren";
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.send();
+}
 function fardFunc(id) {
     var url = "./fard/";
     var xhr = new XMLHttpRequest();

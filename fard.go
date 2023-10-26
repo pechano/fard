@@ -157,6 +157,8 @@ loopbufferchannel = make(chan loop)
 	myRouter.PathPrefix("/loops").Handler(http.StripPrefix("/loops",loopserver))
 
 	myRouter.HandleFunc("/fard/{id}", fard)
+	myRouter.HandleFunc("/soren/", sorenHandler)
+
 	myRouter.HandleFunc("/tts", getOptions)
 
 	myRouter.HandleFunc("/loop/{id}", loopHandler)
