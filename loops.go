@@ -120,7 +120,6 @@ func (l *LoopsData) Manager(){
 
 	func uploadNewLoop (w http.ResponseWriter, r *http.Request) {
 		// Maximum upload of 10 MB files
-		r.ParseMultipartForm(10 << 20)
 
 		// Get handler for filename, size and headers
 		imgFile, imgHandler, err := r.FormFile("image")
@@ -143,7 +142,7 @@ func (l *LoopsData) Manager(){
 		var newloop loop
 		newloop.Img = imgHandler.Filename
 		newloop.Filename = sndHandler.Filename
-	if filepath.Ext(newloop.Filename) !="..wav"  {
+	if filepath.Ext(newloop.Filename) !=".wav"  {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprintf(w, "Loop not added. File format MUST be .wav with 44100 Hz sample rate\n")
 	return}
