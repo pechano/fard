@@ -82,4 +82,5 @@ func GetYTsnd(ytid string)(){
 	soundfile := exec.Command("yt-dlp","-x","--audio-format=mp3","-o","data/snd/%(id)s",ytid)
 	err :=	soundfile.Run()
 	check(err)
+
 }

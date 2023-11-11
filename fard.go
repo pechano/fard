@@ -7,10 +7,12 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"math/rand"
 	"net"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -52,6 +54,11 @@ var loopbufferchannel chan loop
 
 func main() {
 
+	teststring := "halli hallo og lige et øjeblik"
+	teststring = TruncateTitle(teststring)
+	teststring = teststring+RandomString()
+	fmt.Println(teststring)
+
 	err := godotenv.Load()
 	check(err)
 	port := os.Getenv("port")
@@ -91,6 +98,7 @@ loopbufferchannel = make(chan loop)
 	fmt.Println("Looking for new memes")
 	discoverMemes()
 	go collection.Manager()
+
 	go scanForMemes(collection)
 	go bufferman(Memebufferchannel, collection )
 
@@ -479,4 +487,21 @@ func bufferman(bufferchannel chan Meme, collection Memecollection)  {
 		collection.channel <- memeNoBuffer	
 
 	}
+}
+
+
+func RandomString()(output string){
+	possibles :=[]rune("abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVXYZ")
+	runes := []rune("")
+	for i := 0; i<5;i++{
+		random := rand.Intn(len(possibles)-1)
+	runes = append(runes, possibles[random])
+			}
+	return string(runes) 
+}
+
+func TruncateTitle (input string)(output string){
+	m1 := regexp.MustCompile("( .*)")
+	output = m1.ReplaceAllString(input, "")
+return output
 }
