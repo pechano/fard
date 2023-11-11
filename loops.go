@@ -71,7 +71,10 @@ func scanForLoops(loops *LoopsData) {
 		byteValue, _ := io.ReadAll(jsonFile)
 
 		json.Unmarshal(byteValue, &loop)
-if loop.FramePerfect == false {loops.channel <- loop ; return}
+		if loop.FramePerfect == false {
+			loops.channel <- loop
+			return
+		}
 		f, err := os.Open(filepath.Join("data", "loops", loop.Filename))
 		check(err)
 		streamer, format, err := wav.Decode(f)
@@ -110,14 +113,14 @@ func loopHandler(w http.ResponseWriter, r *http.Request) {
 			streamer, format, err := mp3.Decode(f)
 			check(err)
 			if format.SampleRate != 44100 {
+				loppedstreamer := beep.Loop(-1, streamer)
+				resampled := beep.Resample(4, format.SampleRate, collection.fardrate, loppedstreamer)
 
-				resampled := beep.Resample(4, format.SampleRate, collection.fardrate, streamer)
 				speaker.Play(resampled)
 				fmt.Printf("Endpoint Hit: %s \n", LoopCollection.Loops[ID].Name)
 			} else {
 				fmt.Printf("Endpoint Hit: %s \n", LoopCollection.Loops[ID].Name)
-
-				speaker.Play(streamer)
+				speaker.Play(beep.Loop(-1, streamer))
 			}
 		}
 
