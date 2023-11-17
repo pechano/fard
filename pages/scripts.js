@@ -59,7 +59,7 @@ async function getMemes() {
         const title = object.title;
         const pp = document.createElement("div");
         pp.textContent = title;
-        pp.setAttribute("class", "container");
+        pp.setAttribute("class", "container2");
         pp.innerHTML = "<img src=/data/img/" + object.img + " alt='poop' style='width:100%'>" +
             "<button class='btn' onclick='fardFunc(" + object.ID + ")'>" + object.title + "</button>" +
             "<button class='btn2' onclick=browserFard('" + object.file + "')><i class='fa-solid fa-headphones'></i></button>";

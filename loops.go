@@ -181,7 +181,7 @@ func uploadNewLoop(w http.ResponseWriter, r *http.Request) {
 	newloop.Name = r.FormValue("title")
 	truncatedname := TruncateTitle(newloop.Name)
 
-	jsonName := truncatedname + RandomString() + ".json"
+	jsonName := truncatedname + "_" + RandomString() + ".json"
 
 	jsonNamePath := filepath.Join("data", "loops", jsonName)
 	fmt.Println("New loop submitted: ", newloop)

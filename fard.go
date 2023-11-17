@@ -34,7 +34,7 @@ type Meme struct {
 	Img       string `json:"img"`
 	Title     string `json:"title"`
 	buffer    *beep.Buffer
-	ID        int `json:",omitempty"`
+	ID        int `json:"ID"`
 }
 
 type Memecollection struct {
@@ -412,13 +412,14 @@ func savememes() {
 }
 
 func (m *Memecollection) Manager() {
+
 	for {
 
 		newmeme := <-m.channel
 		nextID := len(m.Memes)
 		newmeme.ID = nextID
 		m.Memes = append(m.Memes, newmeme)
-		fmt.Println("new meme added: " + newmeme.Title)
+		fmt.Println("new meme added: " + newmeme.Title + " with ID: " + fmt.Sprint(newmeme.ID))
 
 	}
 }
@@ -464,13 +465,22 @@ func scanForMemes(collection Memecollection) {
 
 		streamer, format, err := mp3.Decode(f)
 		check(err)
+		if format.SampleRate != collection.fardrate {
+			resampled := beep.Resample(4, format.SampleRate, collection.fardrate, streamer)
 
-		resampled := beep.Resample(4, format.SampleRate, collection.fardrate, streamer)
+			fard.buffer = beep.NewBuffer(format)
+			fard.buffer.Append(resampled)
+			streamer.Close()
+			collection.channel <- fard
+		} else {
 
-		fard.buffer = beep.NewBuffer(format)
-		fard.buffer.Append(resampled)
-		streamer.Close()
-		collection.channel <- fard
+			fard.buffer = beep.NewBuffer(format)
+			fard.buffer.Append(streamer)
+			streamer.Close()
+			collection.channel <- fard
+
+		}
+
 	}
 
 }

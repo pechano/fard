@@ -1,18 +1,79 @@
+hallo
 
 <form
+        id="mainform"
       enctype="multipart/form-data"
       action="../uploadmeme"
       method="post"
       >
 
-      <label>file entry (will not be displayed)</label><br />
-      <input type="text" name="memename"><br />
       <label>Title:</label><br />
       <input type="text" name="title"><br />
       <label>Img:</label><br />
-      <input type="file" name="image" /><br />
+      <input type="file" name="image" id="imagefile" onchange="document.getElementById('preview').src = window.URL.createObjectURL(this.files[0])"/><br />
       <label>SoundFile:</label><br />
       <input type="file" name="sound" /><br />
       <input type="submit" value="uploadmeme" /><br />
 </form>
+<img src ="" id="preview">Preview </img>
 
+
+img{
+  width: 300px;
+  height: 300px;
+  border: 1px solid;
+  background: #ccc;
+}
+<div>
+  Paste here!
+</div>
+
+<img id="img" src="" onpaste="convertToImage">
+<script>
+
+const form = document.getElementById("mainform");
+const fileInput = document.getElementById("imagefile");
+const preview = document.getElementById("preview");
+
+
+
+window.addEventListener('paste', e => {
+  fileInput.files = e.clipboardData.files;
+    preview.innerHTML = "rofl update";
+});
+
+const image = document.getElementById('img')
+document.addEventListener('paste', convertToImage)
+
+function convertToImage(e) {
+  var blob = image_data_transfer(e.clipboardData)
+  if (blob !== null) {
+    var reader = new FileReader();
+    reader.onload = function(event) {
+      console.log(event.target.result);
+      image.src = event.target.result
+      alert('pasted!')
+    }; // data url!
+    reader.readAsDataURL(blob);
+  } else {
+    console.log("couldn't read image data from clipboard")
+  }
+
+
+}
+
+function image_data_transfer(clipboardData) {
+  const p = clipboardData.items;
+  try {
+    return Array
+      .apply(null, Array(p.length))
+      .map((_, i) => p[i])
+      .find(e => e.kind == "file" && /image/.test(e.type))
+      .getAsFile()
+    // URL.createObjectURL();
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+}
+</script>
