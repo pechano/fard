@@ -165,6 +165,8 @@ func main() {
 	myRouter.HandleFunc("/fard/{id}", fard)
 	myRouter.HandleFunc("/soren/", sorenHandler)
 
+	myRouter.HandleFunc("/ding/", dingHandler)
+
 	myRouter.HandleFunc("/tts", getOptions)
 
 	myRouter.HandleFunc("/loop/{id}", loopHandler)

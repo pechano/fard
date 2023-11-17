@@ -60,8 +60,10 @@ async function getMemes() {
         const pp = document.createElement("div");
         pp.textContent = title;
         pp.setAttribute("class", "container2");
-        pp.innerHTML = "<img src=/data/img/" + object.img + " alt='poop' style='width:100%'>" +
-            "<button class='btn' onclick='fardFunc(" + object.ID + ")'>" + object.title + "</button>" +
+
+
+        pp.innerHTML = "<div class='title'>  "+object.title+" </div>" +"<img src=/data/img/" + object.img + " alt='poop' onclick='fardFunc(" + object.ID + ")'style='width:100%'>" +
+            
             "<button class='btn2' onclick=browserFard('" + object.file + "')><i class='fa-solid fa-headphones'></i></button>";
         temp?.appendChild(pp);
     }
