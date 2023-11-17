@@ -31,12 +31,16 @@ func uploadmeme(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("File Size: %+v\n", imgHandler.Size)
 	fmt.Printf("MIME Header: %+v\n", imgHandler.Header)
 	var newmeme Meme
-	newmeme.Img = imgHandler.Filename
-	newmeme.SoundFile = sndHandler.Filename
-	newmeme.Title = r.FormValue("title")
-	truncatedname := TruncateTitle(newmeme.Title)
 
-	jsonName := truncatedname + "_" + RandomString() + ".json"
+	newmeme.Title = r.FormValue("title")
+	truncatedname := TruncateTitle(newmeme.Title) + "_" + RandomString()
+	imageExtension := filepath.Ext(imgHandler.Filename)
+
+	newmeme.Img = truncatedname + imageExtension
+
+	newmeme.SoundFile = truncatedname + ".mp3"
+
+	jsonName := truncatedname + ".json"
 
 	jsonNamePath := filepath.Join("data", jsonName)
 	fmt.Println("New meme submitted: ", newmeme)
@@ -44,7 +48,7 @@ func uploadmeme(w http.ResponseWriter, r *http.Request) {
 	_ = os.WriteFile(jsonNamePath, file, 0644)
 
 	// Create file
-	dst, err := os.Create(filepath.Join("data", "img", imgHandler.Filename))
+	dst, err := os.Create(filepath.Join("data", "img", newmeme.Img))
 	defer dst.Close()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -57,7 +61,7 @@ func uploadmeme(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Create file
-	dst, err = os.Create(filepath.Join("data", "snd", sndHandler.Filename))
+	dst, err = os.Create(filepath.Join("data", "snd", newmeme.SoundFile))
 	defer dst.Close()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
