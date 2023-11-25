@@ -1,67 +1,68 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
   <link rel="icon" type="image/x-icon" href="./pages/Bic_logo.svg">
-    <script type="text/javascript" src="./pages/loops.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="./pages/style.css">
-    <script type="text/javascript" src="./pages/scripts.js"></script>
-    <script src="https://kit.fontawesome.com/da6cecf1d1.js" crossorigin="anonymous"></script>
-  </head>
-  <script>
-    getStatus();
-    getMemes();
-    torpedo = 0 ;
-  </script>
+  <script type="text/javascript" src="./pages/loops.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="./pages/style.css">
+  <script type="text/javascript" src="./pages/scripts.js"></script>
+  <script src="https://kit.fontawesome.com/da6cecf1d1.js" crossorigin="anonymous"></script>
+</head>
+<script>
+  getStatus();
+  getMemes();
+  torpedo = 0;
+</script>
 
 
-  <body>
+<body>
 
-    <main>
+  <main>
 
 
-      <header>
-        <button class="button" onclick="location.href='./pages/loops.html'" >Loops</button>
-        <button class="button" onclick="soren()" >søren.exe</button>
-
-        <div class="hoverinfo" 
-             onclick="getStatus()">
-          <span> Status</span>
-
-          <div class="dropdown-content">
-            Memes:<div id="memes">xx</div> 
-            <br />
-            Loops:<div id="loops">xx</div>
-          </div>
+    <header>
+      <button class="button" onclick="location.href='./pages/loops.html'">Loops</button>
+      <div class="dropdown">
+        <button class="dropbtn">Specials</button>
+        <div class="dropdown-content">
+          <a href="./pages/ttsmeme.html">TTS</a>
+          <button class="button" onclick="soren()">søren.exe</button>
+          <button class="button" onclick="quack()">quack?</button>
+          <button class="button" onclick="ding()">ding</button>
+          <button class="button" onclick="randomHL()">Random Half Life sound effect</button>
+          <button class="button" onclick="randomtom()">Tom Scott Moment</button>
         </div>
+      </div>
 
-        <div class="dropdown">
-          <button class="dropbtn">New content</button>
-          <div class="dropdown-content">
-            <a href="./pages/ttsmeme.html">TTS</a>
-            <a href="./pages/newmemeInstruct.html">New meme</a>
-            <a href="./pages/newloop.html">looparino</a>
-          </div>
+      <div class="hoverinfo" onclick="getStatus()">
+        <span> Status</span>
+
+        <div class="dropdown-content">
+          Memes:<div id="memes">xx</div>
+          <br />
+          Loops:<div id="loops">xx</div>
         </div>
-        <a class="logo" href="https://github.com/pechano/fard">fardserver v1</a>
+      </div>
+
+      <div class="dropdown">
+        <button class="dropbtn">New content</button>
+        <div class="dropdown-content">
+          <a href="./pages/newmemeInstruct.html">New meme</a>
+          <a href="./pages/newloop.html">looparino</a>
+        </div>
+      </div>
+      <a class="logo" href="https://github.com/pechano/fard">fardserver v1</a>
 
 
-        <form onsubmit = "fardFunc(torpedo)"
-              >
-              <input
-                  onkeydown="browserFard('poot.mp3')"
-                  onkeyup="getFilteredMemes(value)"
-
-                  autofocus
-                  value=""
-                  placeholder="Filter"
-                  type="text"
-                  />
-        </form>
+      <form onsubmit="fardFunc(torpedo)">
+        <input onkeydown="browserFard('poot.mp3')" onkeyup="getFilteredMemes(value)" autofocus value=""
+          placeholder="Filter" type="text" />
+      </form>
 
 
-      </header>
-<!--
+    </header>
+    <!--
       <div class="wrapper">
         {{range .}}
         <div class="container">
@@ -77,16 +78,17 @@
 
       </div>
 -->
-<div>
-    <br />
-    <br />
-    <br />
-    </main>
- <button onclick="stopLoop()" id="button">STOP</button>
-    <br />
-</div>
+    <div>
+      <br />
+      <br />
+      <br />
+  </main>
+  <button onclick="stopLoop()" id="button">STOP</button>
+  <br />
+  </div>
 
-      <div id="maymay"></div> 
+  <div id="maymay"></div>
 
-  </body>
+</body>
+
 </html>

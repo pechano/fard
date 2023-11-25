@@ -51,14 +51,25 @@ var loopbufferchannel chan loop
 var collection Memecollection
 var LoopCollection LoopsData
 
+var DingChannel chan string
+var HLchannel chan string
+var HLlist []string
+
+var tomchannel chan string
+var tomlist []string
+
+var duckchannel chan string
+
 func main() {
+	HLlist, err := ListFiles(".wav", filepath.Join("data", "random", "HL"))
+	check(err)
+	tomlist, err := ListFiles(".mp3", filepath.Join("data", "random", "Tom_scott"))
 
-	teststring := "halli hallo og lige et øjeblik"
-	teststring = TruncateTitle(teststring)
-	teststring = teststring + RandomString()
-	fmt.Println(teststring)
+	check(err)
+	fmt.Println("there are " + fmt.Sprint(len(HLlist)) + " half life sound effects loaded")
+	fmt.Println("there are " + fmt.Sprint(len(tomlist)) + " tom scott sound effects loaded")
 
-	err := godotenv.Load()
+	err = godotenv.Load()
 	check(err)
 	port := os.Getenv("port")
 	if port == "" {
@@ -80,6 +91,10 @@ func main() {
 	Memebufferchannel = make(chan Meme)
 	loopbufferchannel = make(chan loop)
 	LoopCollection.channel = make(chan loop)
+	DingChannel = make(chan string)
+	HLchannel = make(chan string)
+	tomchannel = make(chan string)
+	duckchannel = make(chan string)
 
 	f1, err := os.Open(filepath.Join("data", "snd", "fard.mp3"))
 	if err != nil {
@@ -164,8 +179,17 @@ func main() {
 
 	myRouter.HandleFunc("/fard/{id}", fard)
 	myRouter.HandleFunc("/soren/", sorenHandler)
-
+	go dingding(DingChannel)
 	myRouter.HandleFunc("/ding/", dingHandler)
+	//WIP
+	go quacker(duckchannel)
+	myRouter.HandleFunc("/duck/", duckhandler)
+
+	go hlsfx(HLchannel, HLlist)
+	myRouter.HandleFunc("/hl/", hlhandler)
+
+	go tomsfx(tomchannel, tomlist)
+	myRouter.HandleFunc("/tomscott/", tomhandler)
 
 	myRouter.HandleFunc("/tts", getOptions)
 
@@ -435,12 +459,6 @@ func scanForMemes(collection Memecollection) {
 	for _, e := range files {
 		if strings.HasSuffix(e.Name(), ".json") {
 			cleanlist = append(cleanlist, e.Name())
-		}
-	}
-	var rawlist []string
-	for _, file := range rawlist {
-		if strings.HasSuffix(file, ".json") {
-			cleanlist = append(cleanlist, file)
 		}
 	}
 

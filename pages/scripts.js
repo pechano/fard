@@ -1,5 +1,31 @@
 "use strict";
 var torpedo;
+
+function randomtom() {
+    var url = "./tomscott";
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.send();
+}
+function randomHL() {
+    var url = "./hl";
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.send();
+}
+function quack() {
+    var url = "./duck";
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.send();
+}
+function ding() {
+    var url = "./ding";
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.send();
+}
+
 function soren() {
     var url = "./soren";
     var xhr = new XMLHttpRequest();
