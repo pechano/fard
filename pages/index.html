@@ -17,7 +17,9 @@
 
 
 <body>
-
+  <div id="snowflakeContainer">
+    <img src="/data/flakes/snowflake.svg" class="snowflake"></span>
+  </div>
   <main>
 
 
@@ -27,11 +29,23 @@
         <button class="dropbtn">Specials</button>
         <div class="dropdown-content">
           <a href="./pages/ttsmeme.html">TTS</a>
-          <button class="button" onclick="soren()">søren.exe</button>
-          <button class="button" onclick="quack()">quack?</button>
-          <button class="button" onclick="ding()">ding</button>
-          <button class="button" onclick="randomHL()">Random Half Life sound effect</button>
-          <button class="button" onclick="randomtom()">Tom Scott Moment</button>
+          <button class="button" onclick="hitEndpoint('soren')">søren.exe</button>
+          <button class="button" onclick="hitEndpoint('duck')">quack?</button>
+          <button class="button" onclick="hitEndpoint('ding')">ding</button>
+          <button class="button" onclick="hitEndpoint('hl')">Random Half Life sound effect</button>
+          <button class="button" onclick="hitEndpoint('tomscott')">Tom Scott Moment</button>
+        </div>
+      </div>
+
+      <div class="dropdown">
+        <button class="dropbtn">Snow???</button>
+        <div class="dropdown-content">
+          <button class="button" onclick="changeFlakes2('snowflake.svg')">snowflakes</button>
+          <button class="button" onclick="changeFlakes2('Bic_logo.svg')">BICflakes</button>
+          <button class="button" onclick="changeFlakes2('cornflake.png')">cornflakes</button>
+          <button class="button" onclick="changeFlakes2('poop.jpg')">poopflakes</button>
+          <button class="button" onclick="changeFlakes2('bone.gif')">bad to the bone-flakes (scary
+            alert)</button>
         </div>
       </div>
 

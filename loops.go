@@ -73,7 +73,7 @@ func scanForLoops(loops *LoopsData) {
 		json.Unmarshal(byteValue, &loop)
 		if loop.FramePerfect == false {
 			loops.channel <- loop
-			return
+			continue
 		}
 		f, err := os.Open(filepath.Join("data", "loops", loop.Filename))
 		check(err)
@@ -227,8 +227,10 @@ func LoopBufferman(bufferchannel chan loop, loops LoopsData) {
 		loopNoBuffer := <-bufferchannel
 
 		if !loopNoBuffer.FramePerfect {
+
+			fmt.Println("Received new wave loop")
 			loops.channel <- loopNoBuffer
-			return
+			continue
 		}
 		fmt.Println("Received new loop data, creating buffer")
 
