@@ -59,15 +59,21 @@ var tomchannel chan string
 var tomlist []string
 
 var duckchannel chan string
+var badlandschannel chan string
 
 func main() {
 	HLlist, err := ListFiles(".wav", filepath.Join("data", "random", "HL"))
 	check(err)
-	tomlist, err := ListFiles(".mp3", filepath.Join("data", "random", "Tom_scott"))
 
+	tomlist, err := ListFiles(".mp3", filepath.Join("data", "random", "Tom_scott"))
 	check(err)
+
+	badlist, err := ListFiles(".mp3", filepath.Join("data", "random", "badlands"))
+	check(err)
+
 	fmt.Println("there are " + fmt.Sprint(len(HLlist)) + " half life sound effects loaded")
 	fmt.Println("there are " + fmt.Sprint(len(tomlist)) + " tom scott sound effects loaded")
+	fmt.Println("there are " + fmt.Sprint(len(badlist)) + " badlands chugs sound effects loaded")
 
 	err = godotenv.Load()
 	check(err)
@@ -95,6 +101,7 @@ func main() {
 	HLchannel = make(chan string)
 	tomchannel = make(chan string)
 	duckchannel = make(chan string)
+	badlandschannel = make(chan string)
 
 	f1, err := os.Open(filepath.Join("data", "snd", "fard.mp3"))
 	if err != nil {
@@ -190,6 +197,9 @@ func main() {
 
 	go tomsfx(tomchannel, tomlist)
 	myRouter.HandleFunc("/tomscott/", tomhandler)
+
+	go badlandshit(badlandschannel, badlist)
+	myRouter.HandleFunc("/badlands/", badlandshandler)
 
 	myRouter.HandleFunc("/tts", getOptions)
 

@@ -76,9 +76,9 @@ async function getMemes() {
         pp.setAttribute("class", "container2");
 
 
-        pp.innerHTML = "<div class='title'>  "+object.title+" </div>" +"<img src=/data/img/" + object.img + " alt='poop' onclick='fardFunc(" + object.ID + ")'style='width:100%'>" +
+        pp.innerHTML = "<div class='title'>  "+object.title+" </div>" +"<div>"+"<img src=/data/img/" + object.img + " alt='poop' onclick='fardFunc(" + object.ID + ")'style='width:100%'>" +
             
-            "<button class='btn2' onclick=browserFard('" + object.file + "')><i class='fa-solid fa-headphones'></i></button>";
+            "<button class='btn2' onclick=browserFard('" + object.file + "')><i class='fa-solid fa-headphones'></i></button>"+"</div>";
         temp?.appendChild(pp);
     }
     temp?.setAttribute("class", "wrapper");

@@ -7,11 +7,13 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/gopxl/beep"
 	"github.com/gopxl/beep/mp3"
 	"github.com/gopxl/beep/speaker"
 	"github.com/gopxl/beep/wav"
+	"github.com/gorilla/mux"
 )
 
 func sorenHandler(w http.ResponseWriter, r *http.Request) {
@@ -45,6 +47,22 @@ func tomhandler(w http.ResponseWriter, r *http.Request) {
 	tomchannel <- "tom scot moment"
 }
 func tomsfx(c chan string, list []string) {
+
+	for {
+		fmt.Println(<-c)
+		sound := list[rand.Intn(len(list))]
+		f, err := os.Open(filepath.Join(sound))
+		check(err)
+		streamer, format, err := mp3.Decode(f)
+		check(err)
+		resampled := beep.Resample(4, format.SampleRate, collection.fardrate, streamer)
+		speaker.Play(resampled)
+	}
+}
+func badlandshandler(w http.ResponseWriter, r *http.Request) {
+	badlandschannel <- "chug"
+}
+func badlandshit(c chan string, list []string) {
 
 	for {
 		fmt.Println(<-c)
@@ -155,4 +173,23 @@ func walk(s string, d fs.DirEntry, err error) error {
 		list = append(list, s)
 	}
 	return nil
+}
+
+func distantDog(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["id"]
+	ID, err := strconv.Atoi(key)
+	if err != nil {
+		fmt.Println("Error during conversion")
+		return
+	}
+	if ID < len(collection.Memes) {
+		fart := collection.Memes[ID].buffer.Streamer(0, collection.Memes[ID].buffer.Len())
+		speaker.Play(fart)
+
+		fmt.Printf("Endpoint Hit: %s \n", collection.Memes[ID].Title)
+	} else {
+		fmt.Println("Out of range request made")
+
+	}
 }

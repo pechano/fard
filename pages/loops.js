@@ -15,9 +15,13 @@ async function getLoops() {
         const title = object.title;
         const pp = document.createElement("div");
         pp.textContent = title;
-        pp.setAttribute("class", "container");
-        pp.innerHTML = "<img src=/data/loops/" + object.Img + " alt='poop' style='width:100%'>" +
-            "<button class='btn' onclick='loopFard(" + object.ID + ")'>" + object.Name + "</button>";
+        pp.setAttribute("class", "container2");
+
+        pp.innerHTML = 
+        "<div class='title'>  "+object.Name+" </div>"+
+                "<div>"+
+            "<img src=/data/loops/" + object.Img + " alt='poop' style='width:100%'"+"onclick='loopFard(" + object.ID + ")'>"+
+                "</div>"
         temp?.appendChild(pp);
     }
     temp?.setAttribute("class", "wrapper");
