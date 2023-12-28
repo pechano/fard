@@ -1,0 +1,45 @@
+
+        p,
+        label {
+            font:
+                1rem 'Fira Sans',
+                sans-serif;
+            position: absolute;
+            font-weight: bold;
+            color: white;
+            background-color: cornflowerblue;
+            bottom: 330px;
+            left: 350px;
+        }
+
+        input {
+            position: absolute;
+            bottom: 300px;
+            left: 350px; 
+        }
+
+        .hund {
+            position: absolute;
+            color: white;
+        }
+
+        /* Bottom left text */
+         .knap {
+            position: absolute;
+            bottom: 160px;
+            left: 210px;
+  cursor: pointer;
+        }      
+
+        .distance {
+            font:
+                1rem 'Fira Sans',
+                sans-serif;
+                font-size: 29px;
+            position: absolute;
+            font-weight: bold;
+            color: white;
+            background-color: #4384e2;
+            bottom: 247px;
+            left: 314px;
+        }

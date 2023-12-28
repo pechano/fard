@@ -175,21 +175,62 @@ func walk(s string, d fs.DirEntry, err error) error {
 	return nil
 }
 
-func distantDog(w http.ResponseWriter, r *http.Request) {
+func doghandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	key := vars["id"]
+	key := vars["distance"]
 	ID, err := strconv.Atoi(key)
+
 	if err != nil {
 		fmt.Println("Error during conversion")
 		return
 	}
-	if ID < len(collection.Memes) {
-		fart := collection.Memes[ID].buffer.Streamer(0, collection.Memes[ID].buffer.Len())
-		speaker.Play(fart)
+	dogchannel <- ID
+	fmt.Println("barking from " + fmt.Sprint(ID) + " meters")
+}
 
-		fmt.Printf("Endpoint Hit: %s \n", collection.Memes[ID].Title)
-	} else {
-		fmt.Println("Out of range request made")
+func distantDog(d chan int) {
+
+	for {
+		distance := <-d
+		switch distance {
+		case 0:
+			f, err := os.Open(filepath.Join("data", "special", "0m.mp3"))
+			check(err)
+			streamer, format, err := mp3.Decode(f)
+			check(err)
+			resampled := beep.Resample(4, format.SampleRate, collection.fardrate, streamer)
+			speaker.Play(resampled)
+		case 250:
+			f, err := os.Open(filepath.Join("data", "special", "250m.mp3"))
+			check(err)
+			streamer, format, err := mp3.Decode(f)
+			check(err)
+			resampled := beep.Resample(4, format.SampleRate, collection.fardrate, streamer)
+			speaker.Play(resampled)
+		case 500:
+			f, err := os.Open(filepath.Join("data", "special", "500m.mp3"))
+			check(err)
+			streamer, format, err := mp3.Decode(f)
+			check(err)
+			resampled := beep.Resample(4, format.SampleRate, collection.fardrate, streamer)
+			speaker.Play(resampled)
+		case 750:
+			f, err := os.Open(filepath.Join("data", "special", "750m.mp3"))
+			check(err)
+			streamer, format, err := mp3.Decode(f)
+			check(err)
+			resampled := beep.Resample(4, format.SampleRate, collection.fardrate, streamer)
+			speaker.Play(resampled)
+		case 1000:
+			f, err := os.Open(filepath.Join("data", "special", "1000m.mp3"))
+			check(err)
+			streamer, format, err := mp3.Decode(f)
+			check(err)
+			resampled := beep.Resample(4, format.SampleRate, collection.fardrate, streamer)
+			speaker.Play(resampled)
+		default:
+			continue
+		}
 
 	}
 }

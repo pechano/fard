@@ -61,6 +61,8 @@ var tomlist []string
 var duckchannel chan string
 var badlandschannel chan string
 
+var dogchannel chan int
+
 func main() {
 	HLlist, err := ListFiles(".wav", filepath.Join("data", "random", "HL"))
 	check(err)
@@ -102,6 +104,7 @@ func main() {
 	tomchannel = make(chan string)
 	duckchannel = make(chan string)
 	badlandschannel = make(chan string)
+	dogchannel = make(chan int)
 
 	f1, err := os.Open(filepath.Join("data", "snd", "fard.mp3"))
 	if err != nil {
@@ -185,6 +188,7 @@ func main() {
 	myRouter.PathPrefix("/loops").Handler(http.StripPrefix("/loops", loopserver))
 
 	myRouter.HandleFunc("/fard/{id}", fard)
+
 	myRouter.HandleFunc("/soren/", sorenHandler)
 	go dingding(DingChannel)
 	myRouter.HandleFunc("/ding/", dingHandler)
@@ -200,6 +204,9 @@ func main() {
 
 	go badlandshit(badlandschannel, badlist)
 	myRouter.HandleFunc("/badlands/", badlandshandler)
+
+	go distantDog(dogchannel)
+	myRouter.HandleFunc("/dog/{distance}", doghandler)
 
 	myRouter.HandleFunc("/tts", getOptions)
 

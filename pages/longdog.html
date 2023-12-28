@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Hund Langt Væk TM </title>
+
+    <link rel="stylesheet" href="dog.css">
+
+</head>
+
+<body>
+
+
+
+
+    <div class="hund">
+        <img src="hund2.png"></span>
+        <div class="knap" onclick="hitEndpoint('dog')">
+            <img src="now.png">
+        </div>
+        <div>
+            <input type="range" id="cowbell" name="cowbell" min="0" max="1000" value="250" step="250" />
+        </div>
+        <div class="distance" id="distance">
+            0m
+        </div>
+    </div>
+
+
+    <script>
+
+        function hitEndpoint(endpoint) {
+
+            var slider = document.getElementById("cowbell");
+            console.log(slider.value);
+
+
+            var url = "../" + endpoint + "/" + slider.value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.send();
+
+        }
+        var slider = document.getElementById("cowbell");
+        var output = document.getElementById("distance");
+        output.innerHTML = slider.value + "m"; // Display the default slider value
+
+        // Update the current slider value (each time you drag the slider handle)
+        slider.oninput = function () {
+            output.innerHTML = this.value + "m";
+        }
+    </script>
+
+</body>
+
+</html>
