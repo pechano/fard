@@ -554,7 +554,7 @@ func RandomString() (output string) {
 }
 
 func TruncateTitle(input string) (output string) {
-	m1 := regexp.MustCompile("( .*)")
+	m1 := regexp.MustCompile(`[^a-zA-Z0-9]+`)
 	output = m1.ReplaceAllString(input, "")
 	return output
 }
