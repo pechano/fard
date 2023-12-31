@@ -107,7 +107,7 @@ func main() {
 	duckchannel = make(chan string)
 	badlandschannel = make(chan string)
 	dogchannel = make(chan int)
-	subscribechannel = make(chan string)
+	subscribechannel = make(chan string, 100)
 
 	f1, err := os.Open(filepath.Join("data", "snd", "fard.mp3"))
 	if err != nil {
@@ -161,7 +161,12 @@ func main() {
 			speaker.Play(fart)
 
 			fmt.Printf("Endpoint Hit: %s \n", collection.Memes[ID].Title)
-			subscribechannel <- collection.Memes[ID].Img
+
+			select {
+			case subscribechannel <- collection.Memes[ID].Img: // Put 2 in the channel unless it is full
+			default:
+				fmt.Println("Channel full. Discarding value")
+			}
 		} else {
 			fmt.Println("Out of range request made")
 		}
