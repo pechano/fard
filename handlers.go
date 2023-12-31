@@ -150,3 +150,11 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Fprintf(w, "Successfully Uploaded File\n %s", homeButton)
 }
+
+func subscribehandler(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	response := <-subscribechannel
+	fmt.Fprint(w, response)
+
+}

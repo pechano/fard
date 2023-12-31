@@ -1,0 +1,55 @@
+<style>
+    html,
+    body {
+        height: 100vh;
+        width: 100vh;
+    }
+</style>
+
+
+
+
+<script>
+    function show_image(src, width, height, alt) {
+        var img = document.createElement("img");
+        img.src = src;
+        img.width = width;
+        img.height = height;
+        img.alt = alt;
+
+        // set the position
+        img.style.position = 'absolute';
+        img.style.top = document.body.clientHeight * Math.random() + 'px';
+        img.style.left = document.body.clientWidth * Math.random() + 'px';
+
+        document.body.appendChild(img);
+    };
+
+
+    async function subscribe() {
+        let response = await fetch("/subscribe");
+
+        if (response.status == 502) {
+            // Status 502 is a connection timeout error,
+            // may happen when the connection was pending for too long,
+            // and the remote server or a proxy closed it
+            // let's reconnect
+            await subscribe();
+        } else if (response.status != 200) {
+            // An error - let's show it
+            console.log(response.statusText);
+            // Reconnect in one second
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await subscribe();
+        } else {
+            // Get and show the message
+            let message = await response.text();
+            console.log(message);
+            show_image("../data/img/" + message, 300, 200, "poop")
+            // Call subscribe() again to get the next message
+            await subscribe();
+        }
+    }
+
+    subscribe();
+</script>

@@ -63,6 +63,8 @@ var badlandschannel chan string
 
 var dogchannel chan int
 
+var subscribechannel chan string
+
 func main() {
 	HLlist, err := ListFiles(".wav", filepath.Join("data", "random", "HL"))
 	check(err)
@@ -105,6 +107,7 @@ func main() {
 	duckchannel = make(chan string)
 	badlandschannel = make(chan string)
 	dogchannel = make(chan int)
+	subscribechannel = make(chan string)
 
 	f1, err := os.Open(filepath.Join("data", "snd", "fard.mp3"))
 	if err != nil {
@@ -158,6 +161,7 @@ func main() {
 			speaker.Play(fart)
 
 			fmt.Printf("Endpoint Hit: %s \n", collection.Memes[ID].Title)
+			subscribechannel <- collection.Memes[ID].Img
 		} else {
 			fmt.Println("Out of range request made")
 		}
@@ -213,6 +217,8 @@ func main() {
 	myRouter.HandleFunc("/loop/{id}", loopHandler)
 	myRouter.HandleFunc("/stoploop", loopstopper)
 	myRouter.HandleFunc("/getloops", LoopCollection.sendloops)
+
+	myRouter.HandleFunc("/subscribe", subscribehandler)
 
 	statushandler := func(w http.ResponseWriter, r *http.Request) {
 
