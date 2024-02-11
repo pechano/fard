@@ -20,7 +20,6 @@ import (
 	"github.com/gopxl/beep"
 	"github.com/gopxl/beep/mp3"
 	"github.com/gopxl/beep/speaker"
-	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
 
@@ -136,9 +135,10 @@ func main() {
 	go scanForLoops(&LoopCollection)
 
 	//set up the main router and the handler for "/shutdown", which will restart the server.
-	myRouter := mux.NewRouter().StrictSlash(true)
+	myRouter := http.NewServeMux()
 
 	myServer := http.Server{Addr: ":" + port, Handler: myRouter}
+
 	myRouter.HandleFunc("/shutdown", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK")) // Write response body
 		if err := myServer.Close(); err != nil {
@@ -149,8 +149,7 @@ func main() {
 	//read files to create the meme collection
 
 	fard := func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		key := vars["id"]
+		key := r.PathValue("id")
 		ID, err := strconv.Atoi(key)
 		if err != nil {
 			fmt.Println("Error during conversion")
@@ -172,11 +171,11 @@ func main() {
 		}
 	}
 
-	var PoolTemp string
-	PoolTemp = "11.1"
+	myRouter.HandleFunc("/fard/{id}", fard)
+
+	PoolTemp := "11.1"
 	getTemp := func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		key := vars["temp"]
+		key := r.PathValue("temp")
 		*&PoolTemp = key
 		fmt.Println(PoolTemp) //for testing purposes, can be removed
 	}
@@ -188,15 +187,9 @@ func main() {
 		check(err)
 	})
 
-	fileserver := http.FileServer(http.Dir("./data"))
-	pageserver := http.FileServer(http.Dir("./pages"))
-	loopserver := http.FileServer(http.Dir("./loops"))
-
-	myRouter.PathPrefix("/data").Handler(http.StripPrefix("/data", fileserver))
-	myRouter.PathPrefix("/pages").Handler(http.StripPrefix("/pages", pageserver))
-	myRouter.PathPrefix("/loops").Handler(http.StripPrefix("/loops", loopserver))
-
-	myRouter.HandleFunc("/fard/{id}", fard)
+	myRouter.Handle("/data/", http.FileServer(http.Dir(".")))
+	myRouter.Handle("/pages/", http.FileServer(http.Dir(".")))
+	myRouter.Handle("/loops/", http.FileServer(http.Dir(".")))
 
 	myRouter.HandleFunc("/soren/", sorenHandler)
 	go dingding(DingChannel)
@@ -241,10 +234,9 @@ func main() {
 	myRouter.HandleFunc("/refreshmemes", refreshhandler)
 
 	filterhandler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("filter!")
 
-		vars := mux.Vars(r)
-		fmt.Println(vars)
-		key := vars["term"]
+		key := r.PathValue("term")
 		term := key
 		check(err)
 		FilteredMemes := filterMemesFromJS(collection.Memes, term)

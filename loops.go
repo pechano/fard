@@ -15,7 +15,6 @@ import (
 	"github.com/gopxl/beep/mp3"
 	"github.com/gopxl/beep/speaker"
 	"github.com/gopxl/beep/wav"
-	"github.com/gorilla/mux"
 )
 
 type loop struct {
@@ -90,8 +89,8 @@ func scanForLoops(loops *LoopsData) {
 }
 
 func loopHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	key := vars["id"]
+
+	key := r.PathValue("id")
 	ID, err := strconv.Atoi(key)
 	if err != nil {
 		fmt.Println("Error during conversion")

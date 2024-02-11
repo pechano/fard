@@ -13,7 +13,6 @@ import (
 	"github.com/gopxl/beep/mp3"
 	"github.com/gopxl/beep/speaker"
 	"github.com/gopxl/beep/wav"
-	"github.com/gorilla/mux"
 )
 
 func sorenHandler(w http.ResponseWriter, r *http.Request) {
@@ -176,8 +175,7 @@ func walk(s string, d fs.DirEntry, err error) error {
 }
 
 func doghandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	key := vars["distance"]
+	key := r.PathValue("distance")
 	ID, err := strconv.Atoi(key)
 
 	if err != nil {
