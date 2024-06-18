@@ -65,6 +65,10 @@ var dogchannel chan int
 var subscribechannel chan string
 
 func main() {
+	for x := range 10 {
+		fmt.Println(x)
+	}
+
 	HLlist, err := ListFiles(".wav", filepath.Join("data", "random", "HL"))
 	check(err)
 
@@ -149,6 +153,11 @@ func main() {
 	//read files to create the meme collection
 
 	fard := func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.RemoteAddr, "10.0.0") == false {
+			fmt.Print("Received fard signal from WAN adress %s\n", r.RemoteAddr)
+			return
+		}
+
 		key := r.PathValue("id")
 		ID, err := strconv.Atoi(key)
 		if err != nil {
