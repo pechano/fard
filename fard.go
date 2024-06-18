@@ -154,7 +154,7 @@ func main() {
 
 	fard := func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.RemoteAddr, "10.0.0") == false {
-			fmt.Print("Received fard signal from WAN adress %s\n", r.RemoteAddr)
+			fmt.Printf("Received fard signal from WAN adress %s\n", r.RemoteAddr)
 			return
 		}
 
