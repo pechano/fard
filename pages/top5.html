@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    #giant {
+        font-size: 150px;
+        text-align: center;
+    }
+
+    #sausage {
+        display: flex;
+        justify-content: space-between;
+
+        padding: 100px;
+        padding-top: 0px;
+
+    }
+
+    .column {
+
+        height: 1000px;
+        width: 150px;
+        text-align: center;
+        padding: 0px;
+        display: flex;
+
+        flex-direction: column;
+        justify-content: flex-end;
+
+    }
+</style>
+
+<head>
+    <!--  <meta http-equiv="refresh" content="3"> -->
+    <script type="text/javascript" src="./pages/top5.js"></script>
+</head>
+
+<body>
+    <button class="button" onclick="gettop5()">new status</button>
+    <div id="giant">
+        TOP 5 MEMES
+    </div>
+    <div id="sausage">
+        {{ range . }}
+        <div class="column">
+            <h1>#{{ .Num }}</h1>
+            <h3>{{ .Title }} </h3>
+            <img src="./data/img/{{ .Img}}" width="150">
+            <h3>Plays: {{ .Plays }}</h3>
+            <svg width="200" height="{{ .Scale }}">
+                <rect x="10" y="10" width="150" height="{{ .Scale }}" fill="{{ .Col }}" />
+            </svg>
+        </div>
+        {{ end }}
+
+    </div>
+</body>
+
+</html>

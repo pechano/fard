@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -34,6 +35,17 @@ type Meme struct {
 	Title     string `json:"title"`
 	buffer    *beep.Buffer
 	ID        int `json:"ID"`
+	Plays     int
+}
+
+type top5Meme struct {
+	Img   string
+	Title string
+	ID    int
+	Plays int
+	Scale int
+	Col   string
+	Num   int
 }
 
 type Memecollection struct {
@@ -63,6 +75,8 @@ var badlandschannel chan string
 var dogchannel chan int
 
 var subscribechannel chan string
+
+var playcounter chan int
 
 func main() {
 	for x := range 10 {
@@ -111,6 +125,7 @@ func main() {
 	badlandschannel = make(chan string)
 	dogchannel = make(chan int)
 	subscribechannel = make(chan string, 100)
+	playcounter = make(chan int)
 
 	f1, err := os.Open(filepath.Join("data", "snd", "fard.mp3"))
 	if err != nil {
@@ -153,11 +168,14 @@ func main() {
 	//read files to create the meme collection
 
 	fard := func(w http.ResponseWriter, r *http.Request) {
-		if strings.Contains(r.RemoteAddr, "10.0.0") == false {
-			fmt.Printf("Received fard signal from WAN adress %s\n", r.RemoteAddr)
-			return
-		}
 
+		/*
+			if strings.Contains(r.RemoteAddr, "10.0.0") == false {
+				fmt.Printf("Received fard signal from WAN adress %s\n", r.RemoteAddr)
+				return
+			}
+
+		*/
 		key := r.PathValue("id")
 		ID, err := strconv.Atoi(key)
 		if err != nil {
@@ -169,6 +187,7 @@ func main() {
 			speaker.Play(fart)
 
 			fmt.Printf("Endpoint Hit: %s \n", collection.Memes[ID].Title)
+			playcounter <- collection.Memes[ID].ID
 
 			select {
 			case subscribechannel <- collection.Memes[ID].Img: // Put 2 in the channel unless it is full
@@ -193,6 +212,42 @@ func main() {
 	pooltemplate := template.Must(template.ParseFiles("./pages/temp.html"))
 	myRouter.HandleFunc("/temp", func(w http.ResponseWriter, r *http.Request) {
 		err := pooltemplate.Execute(w, PoolTemp)
+		check(err)
+	})
+
+	top5template := template.Must(template.ParseFiles("./pages/top5.html"))
+	myRouter.HandleFunc("/top5", func(w http.ResponseWriter, r *http.Request) {
+
+		topALL := make([]Meme, len(collection.Memes))
+		_ = copy(topALL, collection.Memes)
+		top5 := getFirstfive(topALL)
+
+		err := top5template.Execute(w, top5)
+		check(err)
+	})
+
+	top5fragment := `        {{ range . }}
+        <div class="column">
+            <h1>#{{ .Num }}</h1>
+            <h3>{{ .Title }} </h3>
+            <img src="./data/img/{{ .Img}}" width="150">
+            <h3>Plays: {{ .Plays }}</h3>
+            <svg width="200" height="{{ .Scale }}">
+                <rect x="10" y="10" width="150" height="{{ .Scale }}" fill="{{ .Col }}" />
+            </svg>
+        </div>
+        {{ end }}
+`
+
+	top5refresh := template.Must(template.New(top5fragment).Parse(top5fragment))
+
+	myRouter.HandleFunc("/top5refresh", func(w http.ResponseWriter, r *http.Request) {
+
+		topALL := make([]Meme, len(collection.Memes))
+		_ = copy(topALL, collection.Memes)
+		top5 := getFirstfive(topALL)
+
+		err := top5refresh.Execute(w, top5)
 		check(err)
 	})
 
@@ -469,12 +524,17 @@ func savememes() {
 func (m *Memecollection) Manager() {
 
 	for {
+		select {
+		case newmeme := <-m.channel:
+			nextID := len(m.Memes)
+			newmeme.ID = nextID
+			m.Memes = append(m.Memes, newmeme)
+			fmt.Println("new meme added: " + newmeme.Title + " with ID: " + fmt.Sprint(newmeme.ID))
+		case ID := <-playcounter:
+			m.Memes[ID].Plays++
+			fmt.Println("The meme " + m.Memes[ID].Title + " has been played " + fmt.Sprint(m.Memes[ID].Plays) + " times")
 
-		newmeme := <-m.channel
-		nextID := len(m.Memes)
-		newmeme.ID = nextID
-		m.Memes = append(m.Memes, newmeme)
-		fmt.Println("new meme added: " + newmeme.Title + " with ID: " + fmt.Sprint(newmeme.ID))
+		}
 
 	}
 }
@@ -569,4 +629,39 @@ func TruncateTitle(input string) (output string) {
 	m1 := regexp.MustCompile(`[^a-zA-Z0-9]+`)
 	output = m1.ReplaceAllString(input, "")
 	return output
+}
+
+func getFirstfive(allMemes []Meme) (top5 []top5Meme) {
+
+	sort.Slice(allMemes, func(i, j int) bool {
+		return allMemes[i].Plays > allMemes[j].Plays
+	})
+	for i := 0; i <= 4; i++ {
+		var top top5Meme
+		top.ID = allMemes[i].ID
+		top.Title = allMemes[i].Title
+		top.Img = allMemes[i].Img
+		top.Plays = allMemes[i].Plays
+		scalingFactor := float32(top.Plays) / float32(allMemes[0].Plays)
+		scalingFactor = scalingFactor * 800
+		top.Scale = int(scalingFactor)
+		top.Num = i + 1
+		switch i {
+
+		case 0:
+			top.Col = "red"
+		case 1:
+			top.Col = "orange"
+		case 2:
+			top.Col = "yellow"
+		case 3:
+			top.Col = "green"
+		case 4:
+			top.Col = "blue"
+		}
+
+		top5 = append(top5, top)
+
+	}
+	return top5
 }
