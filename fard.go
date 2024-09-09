@@ -643,7 +643,7 @@ func getFirstfive(allMemes []Meme) (top5 []top5Meme) {
 		top.Img = allMemes[i].Img
 		top.Plays = allMemes[i].Plays
 		scalingFactor := float32(top.Plays) / float32(allMemes[0].Plays)
-		scalingFactor = scalingFactor * 800
+		scalingFactor = scalingFactor * 600
 		top.Scale = int(scalingFactor)
 		top.Num = i + 1
 		switch i {
