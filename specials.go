@@ -82,6 +82,9 @@ func duckhandler(w http.ResponseWriter, r *http.Request) {
 func quacker(c chan string) {
 	f, err := os.Open(filepath.Join("data", "special", "quack.mp3"))
 	check(err)
+	if os.IsNotExist(err) {
+		return
+	}
 	streamer, format, err := mp3.Decode(f)
 	check(err)
 	quackbuffer := beep.NewBuffer(format)
@@ -89,6 +92,9 @@ func quacker(c chan string) {
 	streamer.Close()
 
 	f, err = os.Open(filepath.Join("data", "special", "quack2.mp3"))
+	if os.IsNotExist(err) {
+		return
+	}
 	check(err)
 	streamer, format, err = mp3.Decode(f)
 	check(err)
@@ -98,6 +104,9 @@ func quacker(c chan string) {
 
 	f, err = os.Open(filepath.Join("data", "special", "honk.mp3"))
 	check(err)
+	if os.IsNotExist(err) {
+		return
+	}
 	streamer, format, err = mp3.Decode(f)
 	check(err)
 	honkbuffer := beep.NewBuffer(format)
@@ -127,6 +136,10 @@ func dingHandler(w http.ResponseWriter, r *http.Request) {
 func dingding(c chan string) {
 	f, err := os.Open(filepath.Join("data", "special", "ding2.mp3"))
 	check(err)
+	if os.IsNotExist(err) {
+		return
+	}
+
 	streamer, format, err := mp3.Decode(f)
 	check(err)
 	dingbuffer := beep.NewBuffer(format)
