@@ -298,20 +298,42 @@ func main() {
 	myRouter.HandleFunc("/refreshmemes", refreshhandler)
 
 	filterhandler := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("filter!")
 
-		key := r.PathValue("term")
-		term := key
-		check(err)
+		query := r.URL.Query()
+		term := query.Get("searchTerm")
+
 		FilteredMemes := filterMemesFromJS(collection.Memes, term)
-		json.NewEncoder(w).Encode(FilteredMemes)
+		memeTemplate := template.Must(template.ParseFiles("./pages/MemeFrame.html"))
+		if len(FilteredMemes) == 0 {
+			err := memeTemplate.Execute(w, collection.Memes)
+			check(err)
+			return
+		}
+		err := memeTemplate.Execute(w, FilteredMemes)
+
+		check(err)
 	}
 
-	myRouter.HandleFunc("/filtermemes/{term}", filterhandler)
+	myRouter.HandleFunc("/filtermemes", filterhandler)
+
 	//Fill in the main page template
-	tmpl := template.Must(template.ParseFiles("./pages/index.html"))
-	myRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		err := tmpl.Execute(w, collection.Memes)
+	myRouter.HandleFunc("/{$}", func(w http.ResponseWriter, r *http.Request) {
+		outerFrameTemplate := template.Must(template.ParseFiles("./pages/OuterFrame.html"))
+		err := outerFrameTemplate.Execute(w, nil)
+		check(err)
+	})
+
+	//respond to top bar request
+	myRouter.HandleFunc("/topBar", func(w http.ResponseWriter, r *http.Request) {
+		topBarTemplate := template.Must(template.ParseFiles("./pages/TopBar.html"))
+		err := topBarTemplate.Execute(w, nil)
+		check(err)
+	})
+
+	//respond to meme request
+	myRouter.HandleFunc("/memeTemplate", func(w http.ResponseWriter, r *http.Request) {
+		memeTemplate := template.Must(template.ParseFiles("./pages/MemeFrame.html"))
+		err := memeTemplate.Execute(w, collection.Memes)
 		check(err)
 	})
 
